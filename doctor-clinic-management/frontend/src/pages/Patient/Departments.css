@@ -1,0 +1,11 @@
+.departments-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.departments-page .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+.departments-page .page-header h1 { margin: 0; }
+.departments-page .page-header .form-group { margin-bottom: 0; min-width: 280px; }
+.dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-lg); }
+.dept-card { background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--spacing-sm); transition: transform var(--transition-fast), box-shadow var(--transition-fast); }
+.dept-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--dept-color); }
+.dept-icon { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.dept-card h3 { margin: 0; font-size: var(--font-size-lg); }
+.dept-desc { font-size: var(--font-size-sm); color: var(--color-gray-500); margin: 0; }
+.dept-doctors { font-size: var(--font-size-xs); color: var(--color-gray-400); }

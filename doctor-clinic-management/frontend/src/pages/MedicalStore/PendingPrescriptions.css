@@ -1,0 +1,9 @@
+.pending-prx-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.pending-prx-page .page-header h1 { margin: 0; }
+.prx-filters { display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: flex-end; }
+.prx-filters .form-group { margin-bottom: 0; min-width: 200px; }
+.dispense-modal { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.dispense-meds { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.dispense-med-row { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border: 1px solid var(--color-gray-200); border-radius: var(--radius-sm); font-size: var(--font-size-sm); }
+.stock-check { color: var(--color-success); font-size: var(--font-size-xs); }
+.dispense-actions { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-md); }

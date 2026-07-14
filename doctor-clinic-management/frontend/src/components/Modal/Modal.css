@@ -1,0 +1,141 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay-open {
+  opacity: 1;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  transform: translateY(20px) scale(0.97);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-card-open {
+  transform: translateY(0) scale(1);
+}
+
+.modal-sm {
+  max-width: 420px;
+}
+
+.modal-md {
+  max-width: 560px;
+}
+
+.modal-lg {
+  max-width: 720px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.modal-close-btn:hover {
+  background: #f1f5f9;
+  color: #0F172A;
+}
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Confirm Modal */
+.confirm-modal-body {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.confirm-modal-icon {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-modal-message {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.confirm-modal-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-modal-footer .btn {
+  flex: 1;
+}
+
+@media (max-width: 576px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    border-radius: 16px 16px 0 0;
+    max-height: 85vh;
+  }
+
+  .modal-sm, .modal-md, .modal-lg {
+    max-width: 100%;
+  }
+}

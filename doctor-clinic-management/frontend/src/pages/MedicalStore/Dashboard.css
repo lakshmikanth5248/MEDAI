@@ -1,0 +1,19 @@
+.ms-dashboard { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.ms-dashboard .page-header h1 { margin: 0; font-size: var(--font-size-2xl); }
+.ms-dashboard .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); }
+.ms-dashboard .quick-actions { display: flex; gap: var(--spacing-md); flex-wrap: wrap; }
+.ms-dashboard .quick-actions a { text-decoration: none; }
+.ms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+@media (max-width: 768px) { .ms-grid { grid-template-columns: 1fr; } }
+.ms-pending-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.ms-pending-item { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-gray-100); }
+.ms-pending-item:last-child { border-bottom: none; }
+.ms-pending-info { display: flex; flex-direction: column; gap: 2px; }
+.ms-pending-patient { font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); }
+.ms-low-stock { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.ms-low-item { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border-radius: var(--radius-sm); background: var(--color-error-bg); }
+.ms-low-info { display: flex; flex-direction: column; gap: 2px; }
+.ms-low-name { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
+.ms-low-qty { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); }
+.ms-dispensed-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.ms-dispensed-item { display: flex; gap: var(--spacing-lg); align-items: center; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-gray-100); font-size: var(--font-size-sm); }

@@ -1,0 +1,20 @@
+.my-appointments { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.my-appointments .page-header h1 { margin: 0; }
+.appt-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--color-gray-200); }
+.appt-tab { padding: 12px 24px; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); cursor: pointer; border: none; background: none; color: var(--color-gray-500); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all var(--transition-fast); display: flex; align-items: center; gap: var(--spacing-sm); }
+.appt-tab:hover { color: var(--color-gray-700); }
+.appt-tab.active { color: var(--color-sky-blue); border-bottom-color: var(--color-sky-blue); }
+.tab-count { background: var(--color-sky-blue); color: white; font-size: 10px; padding: 2px 8px; border-radius: var(--radius-full); }
+.appt-filters { display: flex; gap: var(--spacing-md); }
+.appt-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.appointment-card { background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-md); display: flex; gap: var(--spacing-md); align-items: center; box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200); cursor: pointer; transition: all var(--transition-fast); }
+.appointment-card:hover { border-color: var(--color-sky-blue); }
+.appt-card-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--color-sky-blue); display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+.appt-card-info { flex: 1; }
+.appt-card-info h4 { margin: 0 0 2px; font-size: var(--font-size-md); }
+.appt-card-info p { margin: 2px 0; }
+.appt-card-meta { display: flex; gap: var(--spacing-md); flex-wrap: wrap; font-size: var(--font-size-sm); }
+.appt-card-actions { display: flex; gap: var(--spacing-sm); flex-shrink: 0; }
+.empty-state { text-align: center; padding: var(--spacing-2xl); }
+.empty-icon { font-size: 48px; margin-bottom: var(--spacing-md); }
+.empty-state h3 { margin-bottom: var(--spacing-sm); }

@@ -1,0 +1,12 @@
+.inventory-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.inventory-page .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+.inventory-page .page-header h1 { margin: 0; }
+.inventory-actions { display: flex; gap: var(--spacing-sm); }
+.inventory-filters { display: flex; gap: var(--spacing-md); align-items: flex-end; flex-wrap: wrap; }
+.inventory-filters .form-group { margin-bottom: 0; min-width: 250px; }
+.stock-indicator { padding: 2px 12px; border-radius: var(--radius-full); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); }
+.stock-high { background: var(--color-success-bg); color: var(--color-success); }
+.stock-medium { background: var(--color-warning-bg); color: var(--color-warning); }
+.stock-low { background: var(--color-error-bg); color: var(--color-error); }
+.inventory-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.inventory-form-actions { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }

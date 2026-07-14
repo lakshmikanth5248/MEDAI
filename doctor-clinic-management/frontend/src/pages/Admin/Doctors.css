@@ -1,0 +1,8 @@
+.admin-doctors-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.admin-doctors-page .page-header { display: flex; justify-content: space-between; align-items: center; }
+.admin-doctors-page .page-header h1 { margin: 0; }
+.doctors-filters { display: flex; gap: var(--spacing-md); align-items: flex-end; flex-wrap: wrap; }
+.doctors-filters .form-group { margin-bottom: 0; min-width: 200px; }
+.doctor-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.doctor-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+.doctor-form .form-row .form-group { margin-bottom: 0; }

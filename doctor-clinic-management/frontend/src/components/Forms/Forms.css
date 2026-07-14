@@ -1,0 +1,278 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.form-error {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-field {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #0F172A;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.input-field::placeholder {
+  color: #94a3b8;
+}
+
+.input-field:focus {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.input-focused .input-field {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.input-error .input-field {
+  border-color: #ef4444;
+}
+
+.input-error .input-field:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.input-disabled {
+  opacity: 0.5;
+}
+
+.input-disabled .input-field {
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.input-has-icon {
+  padding-left: 40px;
+}
+
+/* Select */
+.select-wrapper {
+  position: relative;
+}
+
+.select-field {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+  background: #FFFFFF;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+/* Textarea */
+.textarea-field {
+  height: auto;
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+/* Checkbox */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  background: #FFFFFF;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: #38BDF8;
+  border-color: #38BDF8;
+}
+
+.checkbox-input:focus-visible + .checkbox-custom {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+}
+
+.checkbox-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* Radio */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.radio-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-custom {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  background: #FFFFFF;
+}
+
+.radio-input:checked + .radio-custom {
+  border-color: #38BDF8;
+}
+
+.radio-input:focus-visible + .radio-custom {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+}
+
+.radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #38BDF8;
+  animation: radioDotIn 0.2s ease;
+}
+
+@keyframes radioDotIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.radio-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* Toggle */
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.toggle-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.toggle-off {
+  background: #cbd5e1;
+}
+
+.toggle-switch.toggle-on {
+  background: #38BDF8;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.toggle-on .toggle-thumb {
+  left: 23px;
+}

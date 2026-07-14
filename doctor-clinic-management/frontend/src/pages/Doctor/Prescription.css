@@ -1,0 +1,15 @@
+.prescription-page { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 900px; margin: 0 auto; }
+.prescription-page .page-header { display: flex; align-items: center; gap: var(--spacing-md); }
+.prescription-page .page-header h1 { margin: 0; }
+.prx-patient-header { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-md); }
+.prx-patient-header label { font-size: var(--font-size-xs); color: var(--color-gray-400); display: block; }
+.prx-patient-header span { font-weight: var(--font-weight-medium); }
+.medicine-row { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1fr 0.5fr 1fr auto; gap: var(--spacing-sm); padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-gray-100); align-items: flex-start; }
+.medicine-row:last-child { border-bottom: none; }
+.medicine-row .form-group { margin-bottom: 0; }
+.medicine-duration { display: flex; gap: 4px; }
+.medicine-duration .form-group:first-child { flex: 1; }
+.medicine-duration .form-group:last-child { width: 80px; }
+.remove-medicine { background: none; border: none; color: var(--color-error); cursor: pointer; font-size: 20px; padding: 24px 4px 0; }
+@media (max-width: 768px) { .medicine-row { grid-template-columns: 1fr; } }
+.prescription-page .form-actions { display: flex; gap: var(--spacing-md); justify-content: flex-end; }

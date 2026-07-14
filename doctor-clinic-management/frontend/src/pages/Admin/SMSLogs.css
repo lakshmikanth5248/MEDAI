@@ -1,0 +1,11 @@
+.sms-logs-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.sms-logs-page .page-header { display: flex; justify-content: space-between; align-items: center; }
+.sms-logs-page .page-header h1 { margin: 0; }
+.sms-filters { display: flex; gap: var(--spacing-md); align-items: flex-end; flex-wrap: wrap; }
+.sms-filters .form-group { margin-bottom: 0; min-width: 220px; }
+.sms-preview { font-size: var(--font-size-xs); color: var(--color-gray-500); max-width: 250px; }
+.sms-send-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.sms-send-actions { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
+.status-sent { background: var(--color-success-bg); color: var(--color-success); }
+.status-failed { background: var(--color-error-bg); color: var(--color-error); }
+.status-pending { background: var(--color-warning-bg); color: var(--color-warning); }

@@ -1,0 +1,19 @@
+.billing-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.billing-page .page-header h1 { margin: 0; }
+.billing-search { display: flex; gap: var(--spacing-md); align-items: flex-start; }
+.billing-search .form-group { flex: 1; margin-bottom: 0; }
+.billing-patient-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-md); }
+.billing-patient-info label { font-size: var(--font-size-xs); color: var(--color-gray-400); display: block; }
+.billing-patient-info p { margin: 2px 0 0; font-weight: var(--font-weight-medium); }
+.billing-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+@media (max-width: 768px) { .billing-bottom { grid-template-columns: 1fr; } }
+.billing-form { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.bill-items-table table { margin: 0; }
+.bill-items-table .form-group { margin: 0; }
+.bill-items-table input { padding: 6px 8px; font-size: var(--font-size-xs); }
+.remove-btn { background: none; border: none; color: var(--color-error); cursor: pointer; font-size: 16px; padding: 4px; }
+.bill-summary { display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); }
+.summary-row { display: flex; justify-content: space-between; font-size: var(--font-size-sm); color: var(--color-gray-600); }
+.summary-row.total { border-top: 2px solid var(--color-gray-200); padding-top: var(--spacing-sm); font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-navy); }
+.bill-summary-card { background: var(--color-gray-50); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+.bill-summary-card p { margin: 4px 0; }

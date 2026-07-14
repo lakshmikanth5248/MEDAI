@@ -1,0 +1,19 @@
+.admin-depts-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.admin-depts-page .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+.admin-depts-page .page-header h1 { margin: 0; }
+.dept-header-actions { display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap; }
+.dept-header-actions .form-group { margin-bottom: 0; min-width: 200px; }
+.admin-dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing-lg); }
+.admin-dept-card { background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200); display: flex; flex-direction: column; gap: var(--spacing-sm); transition: all var(--transition-fast); }
+.admin-dept-card:hover { border-color: var(--dept-color); }
+.admin-dept-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.admin-dept-card h3 { margin: 0; font-size: var(--font-size-md); }
+.admin-dept-desc { font-size: var(--font-size-sm); color: var(--color-gray-500); margin: 0; flex: 1; }
+.admin-dept-footer { display: flex; justify-content: space-between; font-size: var(--font-size-xs); }
+.admin-dept-actions { display: flex; gap: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-gray-100); }
+.dept-add-card { background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-lg); border: 2px dashed var(--color-gray-300); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition-fast); gap: var(--spacing-sm); min-height: 200px; }
+.dept-add-card:hover { border-color: var(--color-sky-blue); background: var(--color-light-blue); }
+.dept-add-icon { font-size: 36px; color: var(--color-sky-blue); font-weight: var(--font-weight-bold); }
+.dept-add-card p { margin: 0; color: var(--color-gray-500); font-size: var(--font-size-sm); }
+.dept-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.dept-form-actions { display: flex; gap: var(--spacing-sm); }

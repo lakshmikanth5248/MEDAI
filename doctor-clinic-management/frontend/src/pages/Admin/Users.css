@@ -1,0 +1,15 @@
+.users-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.users-page .page-header { display: flex; justify-content: space-between; align-items: center; }
+.users-page .page-header h1 { margin: 0; }
+.users-filters { display: flex; gap: var(--spacing-md); align-items: flex-end; flex-wrap: wrap; }
+.users-filters .form-group { margin-bottom: 0; min-width: 200px; }
+.role-badge { background: var(--color-light-blue); color: var(--color-dark-blue); padding: 2px 12px; border-radius: var(--radius-full); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); }
+.toggle-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; }
+.toggle-switch input { display: none; }
+.toggle-slider { width: 36px; height: 20px; background: var(--color-gray-300); border-radius: 10px; position: relative; transition: background var(--transition-fast); }
+.toggle-slider::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: transform var(--transition-fast); }
+.toggle-switch input:checked + .toggle-slider { background: var(--color-success); }
+.toggle-switch input:checked + .toggle-slider::after { transform: translateX(16px); }
+.toggle-label { font-size: var(--font-size-xs); }
+.user-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.user-form-actions { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }

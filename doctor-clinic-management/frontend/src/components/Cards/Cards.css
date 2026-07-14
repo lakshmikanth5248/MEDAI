@@ -1,0 +1,368 @@
+/* Stat Card */
+.stat-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.stat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.stat-card-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.2;
+}
+
+.stat-card-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  margin-top: 2px;
+}
+
+.stat-card-trend.trend-up {
+  color: #10b981;
+}
+
+.stat-card-trend.trend-down {
+  color: #ef4444;
+}
+
+.stat-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Doctor Card */
+.doctor-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.doctor-card:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.doctor-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.doctor-card-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.doctor-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.star {
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.star.star-filled {
+  color: #f59e0b;
+}
+
+.doctor-card-rating-text {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
+  margin-left: 4px;
+}
+
+.doctor-card-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+
+.doctor-card-specialization {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #38BDF8;
+  font-weight: 500;
+  margin: 0 0 14px;
+}
+
+.doctor-card-details {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.doctor-card-detail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.doctor-card-slots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.slot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.slot-indicator.slots-available {
+  background: #10b981;
+}
+
+.slot-indicator.slots-full {
+  background: #ef4444;
+}
+
+.doctor-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #38BDF8;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.doctor-card-btn:hover {
+  background: #0369A1;
+}
+
+/* Appointment Card */
+.appointment-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.appointment-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.appointment-card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 2px;
+}
+
+.appointment-card-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.appointment-card-status {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.appointment-card-datetime {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Patient Card */
+.patient-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s;
+}
+
+.patient-card:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.patient-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.patient-card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #38BDF8, #0369A1);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  flex-shrink: 0;
+}
+
+.patient-card-info {
+  min-width: 0;
+}
+
+.patient-card-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 2px;
+}
+
+.patient-card-id {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.patient-card-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.patient-card-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.patient-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.patient-card-action-btn {
+  flex: 1;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.patient-card-action-btn.view {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.patient-card-action-btn.view:hover {
+  background: #bae6fd;
+}
+
+.patient-card-action-btn.book {
+  background: #38BDF8;
+  color: #FFFFFF;
+}
+
+.patient-card-action-btn.book:hover {
+  background: #0369A1;
+}

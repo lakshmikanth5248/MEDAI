@@ -1,0 +1,17 @@
+.status-badge {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+.status-scheduled { background: var(--color-light-blue); color: var(--color-dark-blue); }
+.status-confirmed { background: #EEF2FF; color: #6366F1; }
+.status-completed, .status-dispensed, .status-sent, .status-paid { background: var(--color-success-bg); color: var(--color-success); }
+.status-cancelled, .status-failed, .status-noshow { background: var(--color-error-bg); color: var(--color-error); }
+.status-arrived, .status-checkedin, .status-waiting { background: var(--color-warning-bg); color: var(--color-warning); }
+.status-active { background: var(--color-success-bg); color: var(--color-success); }
+.status-inactive { background: var(--color-gray-100); color: var(--color-gray-500); }
+.status-pending, .status-consultation { background: #FEF3C7; color: #D97706; }
+.status-default { background: var(--color-gray-100); color: var(--color-gray-600); }

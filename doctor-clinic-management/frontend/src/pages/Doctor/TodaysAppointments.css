@@ -1,0 +1,15 @@
+.todays-appointments { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.todays-appointments .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+.todays-appointments .page-header h1 { margin: 0; }
+.ta-filters { display: flex; gap: var(--spacing-md); align-items: center; }
+.ta-filters .form-group { margin-bottom: 0; min-width: 200px; }
+.today-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.today-card { background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-md); box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200); cursor: pointer; transition: all var(--transition-fast); }
+.today-card:hover { border-color: var(--color-sky-blue); }
+.today-time { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-dark-blue); min-width: 80px; }
+.today-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--color-sky-blue); display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+.today-info { flex: 1; }
+.today-info h4 { margin: 0; font-size: var(--font-size-md); }
+.today-info p { margin: 2px 0 0; font-size: var(--font-size-sm); }
+.today-status { min-width: 100px; }
+.today-actions { display: flex; gap: var(--spacing-sm); flex-shrink: 0; }

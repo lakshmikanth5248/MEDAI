@@ -1,0 +1,11 @@
+.consultation-page { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 800px; margin: 0 auto; }
+.consult-header { display: flex; align-items: center; gap: var(--spacing-md); }
+.consult-patient-info h1 { margin: 0; font-size: var(--font-size-xl); }
+.consult-patient-info p { margin: 2px 0 0; }
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+.vital-group { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); }
+@media (max-width: 600px) { .vitals-grid { grid-template-columns: 1fr; } }
+.test-row { display: flex; gap: var(--spacing-sm); align-items: flex-start; margin-bottom: var(--spacing-sm); }
+.test-row .form-group { flex: 1; margin-bottom: 0; }
+.remove-test { background: none; border: none; color: var(--color-error); cursor: pointer; font-size: 18px; padding: 8px; }
+.consultation-page .form-actions { display: flex; gap: var(--spacing-md); justify-content: flex-end; }

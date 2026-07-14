@@ -1,0 +1,14 @@
+.register-patient { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.register-patient .page-header { display: flex; align-items: center; gap: var(--spacing-md); }
+.register-patient .page-header h1 { margin: 0; }
+.back-btn { background: none; border: none; font-size: var(--font-size-md); color: var(--color-gray-500); cursor: pointer; padding: 4px 8px; border-radius: var(--radius-sm); transition: all var(--transition-fast); }
+.back-btn:hover { background: var(--color-gray-100); color: var(--color-gray-800); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+.form-row > .form-group { margin-bottom: 0; }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+.form-actions { display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-md); }
+.success-alert { background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-2xl); text-align: center; box-shadow: var(--shadow-lg); }
+.success-icon { font-size: 48px; margin-bottom: var(--spacing-md); }
+.success-alert h2 { margin-bottom: var(--spacing-sm); }
+.patient-id-display { font-size: var(--font-size-xl); color: var(--color-dark-blue); margin: var(--spacing-md) 0; }
+.success-actions { display: flex; gap: var(--spacing-md); justify-content: center; margin-top: var(--spacing-lg); flex-wrap: wrap; }
