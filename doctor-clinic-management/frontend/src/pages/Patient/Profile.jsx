@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Input, Select } from '../../components/Forms';
-import { currentPatient } from '../../utils/mockData';
+import { useAuth } from '../../context/AuthContext';
+import { resolveProfile } from '../../utils/profile';
 import { getInitials, calculateAge } from '../../utils/helpers';
 import './Profile.css';
 
+const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const GENDERS = ['Male', 'Female', 'Other'];
+
 const Profile = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(() => resolveProfile(user));
   const [editMode, setEditMode] = useState(false);
   const [passSection, setPassSection] = useState(false);
-  const [form, setForm] = useState({ ...currentPatient });
+  const [form, setForm] = useState(() => ({ ...profile }));
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
 
   const handleChange = (e) => {
@@ -18,6 +24,7 @@ const Profile = () => {
   };
 
   const handleSave = () => {
+    setProfile({ ...profile, ...form });
     setEditMode(false);
   };
 
@@ -29,11 +36,12 @@ const Profile = () => {
   return (
     <div className="page patient-profile-page">
       <div className="profile-header-card">
-        <div className="profile-avatar-large">{getInitials(currentPatient.name)}</div>
+        <div className="profile-avatar-large">{getInitials(profile?.name)}</div>
         <div className="profile-header-info">
-          <h1>{currentPatient.name}</h1>
-          <p className="text-muted">{currentPatient.id} | Member since {currentPatient.registeredDate}</p>
-          <p><span className="blood-badge">{currentPatient.bloodGroup}</span></p>
+          <h1>{profile?.name}</h1>
+          <p className="profile-unique-id">{profile?.patientId}</p>
+          <p className="text-muted">Member since {profile?.registeredDate}</p>
+          <p><span className="blood-badge">{profile?.bloodGroup}</span></p>
         </div>
         <div className="profile-header-actions">
           <Button onClick={() => setEditMode(!editMode)} icon={editMode ? '✕' : '✏️'}>{editMode ? 'Cancel' : 'Edit Profile'}</Button>
@@ -46,8 +54,11 @@ const Profile = () => {
             <div className="profile-form">
               <Input label="Full Name" name="name" value={form.name} onChange={handleChange} />
               <Input label="Date of Birth" name="dob" type="date" value={form.dob} onChange={handleChange} />
+              <Select label="Gender" name="gender" value={form.gender} onChange={handleChange} placeholder="Select gender" options={GENDERS.map((g) => ({ value: g, label: g }))} />
+              <Select label="Blood Group" name="bloodGroup" value={form.bloodGroup} onChange={handleChange} placeholder="Select blood group" options={BLOOD_GROUPS.map((b) => ({ value: b, label: b }))} />
               <Input label="Phone" name="phone" value={form.phone} onChange={handleChange} />
               <Input label="Email" name="email" value={form.email} onChange={handleChange} />
+              <Input label="Address" name="address" value={form.address} onChange={handleChange} />
               <div className="profile-form-actions">
                 <Button onClick={handleSave}>Save Changes</Button>
                 <Button variant="secondary" onClick={() => setEditMode(false)}>Cancel</Button>
@@ -55,31 +66,28 @@ const Profile = () => {
             </div>
           ) : (
             <div className="profile-info-display">
-              <div className="info-row"><label>Full Name</label><span>{currentPatient.name}</span></div>
-              <div className="info-row"><label>Date of Birth</label><span>{currentPatient.dob} ({calculateAge(currentPatient.dob)} yrs)</span></div>
-              <div className="info-row"><label>Gender</label><span>{currentPatient.gender}</span></div>
-              <div className="info-row"><label>Phone</label><span>{currentPatient.phone}</span></div>
-              <div className="info-row"><label>Email</label><span>{currentPatient.email}</span></div>
+              <div className="info-row"><label>Full Name</label><span>{profile?.name}</span></div>
+              <div className="info-row"><label>Date of Birth</label><span>{profile?.dob} ({calculateAge(profile?.dob)} yrs)</span></div>
+              <div className="info-row"><label>Gender</label><span>{profile?.gender}</span></div>
+              <div className="info-row"><label>Phone</label><span>{profile?.phone}</span></div>
+              <div className="info-row"><label>Email</label><span>{profile?.email}</span></div>
             </div>
           )}
         </Card>
 
         <Card title="Contact Information">
           <div className="profile-info-display">
-            <div className="info-row"><label>Address</label><span>{currentPatient.address.street}, {currentPatient.address.city}</span></div>
-            <div className="info-row"><label>City</label><span>{currentPatient.address.city}</span></div>
-            <div className="info-row"><label>State</label><span>{currentPatient.address.state}</span></div>
-            <div className="info-row"><label>Pincode</label><span>{currentPatient.address.pincode}</span></div>
-            <div className="info-row"><label>Emergency Contact</label><span>{currentPatient.emergencyContact.name} ({currentPatient.emergencyContact.relation}) - {currentPatient.emergencyContact.phone}</span></div>
+            <div className="info-row"><label>Address</label><span>{profile?.address}</span></div>
+            <div className="info-row"><label>Phone</label><span>{profile?.phone}</span></div>
+            <div className="info-row"><label>Email</label><span>{profile?.email}</span></div>
           </div>
         </Card>
 
         <Card title="Medical Information">
           <div className="profile-info-display">
-            <div className="info-row"><label>Blood Group</label><span className="blood-badge">{currentPatient.bloodGroup}</span></div>
-            <div className="info-row"><label>Allergies</label><span>{currentPatient.allergies?.length ? currentPatient.allergies.join(', ') : 'None'}</span></div>
-            <div className="info-row"><label>Chronic Conditions</label><span>{currentPatient.chronicConditions?.length ? currentPatient.chronicConditions.join(', ') : 'None'}</span></div>
-            <div className="info-row"><label>Insurance</label><span>{currentPatient.insurance.provider || 'N/A'} {currentPatient.insurance.policyNo ? `(${currentPatient.insurance.policyNo})` : ''}</span></div>
+            <div className="info-row"><label>Blood Group</label><span className="blood-badge">{profile?.bloodGroup}</span></div>
+            <div className="info-row"><label>Gender</label><span>{profile?.gender}</span></div>
+            <div className="info-row"><label>Date of Birth</label><span>{profile?.dob}</span></div>
           </div>
         </Card>
       </div>

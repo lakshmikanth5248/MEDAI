@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Select } from '../../components/Forms';
-import { appointments, prescriptions, consultations, currentPatient } from '../../utils/mockData';
+import { appointments, prescriptions, consultations, currentPatient, doctors } from '../../utils/mockData';
 import { formatDate, getStatusBadgeClass } from '../../utils/helpers';
 import './MedicalHistory.css';
 
@@ -10,9 +10,15 @@ const MedicalHistory = () => {
   const [filterType, setFilterType] = useState('all');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
-  const patientAppts = appointments.filter((a) => a.patientId === currentPatient.id);
-  const patientConsultations = consultations.filter((c) => c.patientId === currentPatient.id);
-  const patientPrescriptions = prescriptions.filter((p) => p.patientId === currentPatient.id);
+  const patientAppts = appointments
+    .filter((a) => a.patientId === currentPatient.id)
+    .map((a) => ({ ...a, doctorName: doctors.find((d) => d.id === a.doctorId)?.name || 'Unknown' }));
+  const patientConsultations = consultations
+    .filter((c) => c.patientId === currentPatient.id)
+    .map((c) => ({ ...c, doctorName: doctors.find((d) => d.id === c.doctorId)?.name || 'Unknown' }));
+  const patientPrescriptions = prescriptions
+    .filter((p) => p.patientId === currentPatient.id)
+    .map((p) => ({ ...p, doctorName: doctors.find((d) => d.id === p.doctorId)?.name || 'Unknown' }));
 
   const timeline = [
     ...patientAppts.map((a) => ({ ...a, type: 'appointment', date: a.date })),
@@ -30,8 +36,8 @@ const MedicalHistory = () => {
     return matchType;
   });
 
-  const completedVisits = patientAppts.filter((a) => a.status === 'Completed').length;
-  const lastVisit = patientAppts.filter((a) => a.status === 'Completed').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const completedVisits = patientAppts.filter((a) => a.status?.toLowerCase() === 'completed').length;
+  const lastVisit = patientAppts.filter((a) => a.status?.toLowerCase() === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
   return (
     <div className="page medical-history">
@@ -91,15 +97,13 @@ const MedicalHistory = () => {
               {item.type === 'consultation' && (
                 <div>
                   <p><strong>{item.doctorName}</strong></p>
-                  <p className="text-muted">Symptoms: {item.symptoms}</p>
-                  <p><strong>Diagnosis:</strong> {item.diagnosis}</p>
-                  {item.testsRecommended?.length > 0 && <p className="text-muted">Tests: {item.testsRecommended.join(', ')}</p>}
+                  <p className="text-muted">{item.notes}</p>
                 </div>
               )}
               {item.type === 'prescription' && (
                 <div>
                   <p><strong>{item.doctorName}</strong></p>
-                  <p className="text-muted">{item.diagnosis}</p>
+                  {item.notes && <p className="text-muted">{item.notes}</p>}
                   <p>{item.medicines.map((m) => m.name).join(', ')}</p>
                 </div>
               )}

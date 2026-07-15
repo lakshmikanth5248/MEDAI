@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../i18n/LanguageContext';
+import LanguageSwitcher from '../../components/LanguageSwitcher/LanguageSwitcher';
+import Input from '../../components/Forms/Input';
 import './Login.css';
 
 const ROLES = [
-  { key: 'patient', label: 'Patient' },
-  { key: 'reception', label: 'Receptionist' },
-  { key: 'doctor', label: 'Doctor' },
-  { key: 'medical_store', label: 'Medical Store' },
-  { key: 'admin', label: 'Admin' },
+  { key: 'patient', labelKey: 'role.patient' },
+  { key: 'reception', labelKey: 'role.reception' },
+  { key: 'doctor', labelKey: 'role.doctor' },
+  { key: 'medical_store', labelKey: 'role.medical_store' },
+  { key: 'admin', labelKey: 'role.admin' },
 ];
 
 const DEMO_CREDENTIALS = {
@@ -21,6 +24,7 @@ const DEMO_CREDENTIALS = {
 
 export default function Login() {
   const { login, loading } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,9 +37,9 @@ export default function Login() {
 
   const validate = () => {
     const errors = {};
-    if (!email.trim()) errors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Invalid email format';
-    if (!password) errors.password = 'Password is required';
+    if (!email.trim()) errors.email = t('auth.emailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = t('auth.emailInvalid');
+    if (!password) errors.password = t('auth.passwordRequired');
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -57,108 +61,108 @@ export default function Login() {
   const creds = DEMO_CREDENTIALS[role];
 
   return (
-    <div className="login-page">
-      <div className="login-illustration">
-        <div className="login-illustration-bg" />
-        <div className="login-illustration-content">
-          <div className="login-brand">
-            <span className="login-brand-icon">+C</span>
-            <span className="login-brand-name">ClinicManager</span>
+      <div className="login-page">
+        <div className="login-illustration">
+          <div className="login-illustration-bg" />
+          <div className="login-illustration-content">
+            <div className="login-brand">
+              <span className="login-brand-icon">+C</span>
+              <span className="login-brand-name">ClinicManager</span>
+            </div>
+            <div className="login-illustration-icon">✚</div>
+            <h2 className="login-illustration-title">{t('auth.solutionTitle')}</h2>
+            <p className="login-illustration-desc">
+              {t('auth.solutionDesc')}
+            </p>
           </div>
-          <div className="login-illustration-icon">✚</div>
-          <h2 className="login-illustration-title">Complete Clinic Management Solution</h2>
-          <p className="login-illustration-desc">
-            Streamline your clinic operations with digital appointments, prescriptions, medical records, and more.
-          </p>
         </div>
-      </div>
 
-      <div className="login-form-container">
-        <div className="login-form-wrapper">
-          <div className="login-form-header">
-            <h2 className="login-form-title">Welcome Back</h2>
-            <p className="login-form-subtitle">Sign in to your account to continue</p>
-          </div>
-
-          <div className="login-role-tabs">
-            {ROLES.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                className={`login-role-tab${role === r.key ? ' active' : ''}`}
-                onClick={() => { setRole(r.key); setError(''); setFieldErrors({}); }}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          {error && <div className="login-error">{error}</div>}
-
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-email">Email Address</label>
-              <input
-                id="login-email"
-                type="email"
-                className={`form-input${fieldErrors.email ? ' error' : ''}`}
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {fieldErrors.email && <span className="form-error">{fieldErrors.email}</span>}
+        <div className="login-form-container">
+          <div className="login-form-wrapper">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <LanguageSwitcher />
+            </div>
+            <div className="login-form-header">
+              <h2 className="login-form-title">{t('auth.welcomeBack')}</h2>
+              <p className="login-form-subtitle">{t('auth.signInSubtitle')}</p>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-password">Password</label>
-              <input
-                id="login-password"
+            <div className="login-role-tabs">
+              {ROLES.map((r) => (
+                <button
+                  key={r.key}
+                  type="button"
+                  className={`login-role-tab${role === r.key ? ' active' : ''}`}
+                  onClick={() => { setRole(r.key); setError(''); setFieldErrors({}); }}
+                >
+                  {t(r.labelKey)}
+                </button>
+              ))}
+            </div>
+
+            {error && <div className="login-error">{error}</div>}
+
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="form-group">
+                <label className="form-label" htmlFor="login-email">{t('auth.email')}</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  className={`form-input${fieldErrors.email ? ' error' : ''}`}
+                  placeholder={t('auth.emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                {fieldErrors.email && <span className="form-error">{fieldErrors.email}</span>}
+              </div>
+
+              <Input
                 type="password"
-                className={`form-input${fieldErrors.password ? ' error' : ''}`}
-                placeholder="Enter your password"
+                label={t('auth.password')}
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={fieldErrors.password}
+                placeholder={t('auth.passwordPlaceholder')}
               />
-              {fieldErrors.password && <span className="form-error">{fieldErrors.password}</span>}
+
+              <div className="form-row">
+                <label className="form-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <span>{t('auth.rememberMe')}</span>
+                </label>
+                <Link to="/forgot-password" className="form-link">{t('auth.forgotPassword')}</Link>
+              </div>
+
+              <button
+                type="submit"
+                className="login-submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="btn-loading">
+                    <span className="spinner" />
+                    {t('auth.signingIn')}
+                  </span>
+                ) : (
+                  t('auth.signIn')
+                )}
+              </button>
+            </form>
+
+            <div className="login-footer-text">
+              {t('auth.noAccount')} <Link to="/register" className="form-link">{t('auth.register')}</Link>
             </div>
 
-            <div className="form-row">
-              <label className="form-checkbox">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <span>Remember me</span>
-              </label>
-              <Link to="/forgot-password" className="form-link">Forgot Password?</Link>
+            <div className="login-demo-hint">
+              {t('auth.demo')}: {creds.email} / {creds.password}
             </div>
-
-            <button
-              type="submit"
-              className="login-submit"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="btn-loading">
-                  <span className="spinner" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
-
-          <div className="login-footer-text">
-            Don't have an account? <Link to="/register" className="form-link">Register</Link>
-          </div>
-
-          <div className="login-demo-hint">
-            Demo: {creds.email} / {creds.password}
           </div>
         </div>
       </div>
-    </div>
   );
 }

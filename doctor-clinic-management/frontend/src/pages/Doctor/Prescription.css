@@ -13,3 +13,35 @@
 .remove-medicine { background: none; border: none; color: var(--color-error); cursor: pointer; font-size: 20px; padding: 24px 4px 0; }
 @media (max-width: 768px) { .medicine-row { grid-template-columns: 1fr; } }
 .prescription-page .form-actions { display: flex; gap: var(--spacing-md); justify-content: flex-end; }
+
+.prescription-print-area { display: none; }
+.printing .prescription-print-area { display: block; }
+
+@media print {
+  body * { visibility: hidden; }
+  .prescription-print-area, .prescription-print-area * { visibility: visible; }
+  .prescription-print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 40px; background: #fff; color: #000; }
+  .no-print, .no-print *, .sidebar, .navbar, .dashboard-layout, .app-layout > *:not(.prescription-print-area) { display: none !important; }
+  @page { margin: 15mm; }
+}
+
+.prescription-print-area { font-family: 'Times New Roman', serif; max-width: 210mm; margin: 0 auto; color: #000; }
+.prescription-print-area .print-header { text-align: center; margin-bottom: 10px; }
+.prescription-print-area .print-header h2 { margin: 0; font-size: 24px; color: #1a365d; }
+.prescription-print-area .print-header p { margin: 2px 0; font-size: 12px; color: #555; }
+.prescription-print-area .print-divider { border-top: 2px solid #333; margin: 12px 0; }
+.prescription-print-area .print-title { text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 4px; color: #1a365d; margin: 8px 0; }
+.prescription-print-area .print-meta { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
+.prescription-print-area .print-section { margin: 10px 0; }
+.prescription-print-area .print-section h4 { font-size: 14px; color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 6px; }
+.prescription-print-area .print-section p { margin: 4px 0; font-size: 13px; }
+.prescription-print-area .print-row { display: flex; gap: 8px; font-size: 13px; margin: 2px 0; }
+.prescription-print-area .print-row span:first-child { min-width: 120px; font-weight: 600; }
+.prescription-print-area .print-med-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12px; }
+.prescription-print-area .print-med-table th { background: #f0f0f0; padding: 6px 8px; border: 1px solid #ccc; text-align: left; font-weight: 600; }
+.prescription-print-area .print-med-table td { padding: 5px 8px; border: 1px solid #ccc; }
+.prescription-print-area .print-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; }
+.prescription-print-area .print-signature { text-align: center; }
+.prescription-print-area .print-signature-line { width: 200px; border-top: 1px solid #000; margin-bottom: 4px; }
+.prescription-print-area .print-signature p { margin: 0; font-size: 12px; color: #555; }
+.prescription-print-area .print-footer-note { font-size: 11px; color: #888; }

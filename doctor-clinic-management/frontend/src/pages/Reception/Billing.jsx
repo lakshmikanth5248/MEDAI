@@ -4,7 +4,8 @@ import { Button } from '../../components/Buttons';
 import { DataTable } from '../../components/Tables';
 import { Input, Select, Textarea } from '../../components/Forms';
 import { patients, bills } from '../../utils/mockData';
-import { generateBillId } from '../../utils/helpers';
+import { generateBillId, getCurrentDate } from '../../utils/helpers';
+import { printDocument, escapeHtmlValue as esc } from '../../utils/print';
 import './Billing.css';
 
 const Billing = () => {
@@ -57,6 +58,55 @@ const Billing = () => {
     setBillGenerated(true);
   };
 
+  const handlePrintBill = () => {
+    const rows = billItems
+      .map(
+        (item, i) =>
+          `<tr><td>${i + 1}</td><td>${esc(item.description || '—')}</td><td>${esc(item.quantity)}</td><td>₹${esc((item.rate || 0).toFixed(2))}</td><td>₹${esc((item.amount || 0).toFixed(2))}</td></tr>`
+      )
+      .join('');
+    const body = `
+      <div class="doc-header">
+        <h2>ClinicManager</h2>
+        <p>123 Healthcare Avenue, Medical District, Mumbai</p>
+        <p>Phone: +91-22-12345678 | Email: info@clinicmanager.com</p>
+      </div>
+      <div class="divider"></div>
+      <div class="title">INVOICE</div>
+      <div class="meta">
+        <div><strong>Bill ID:</strong> ${esc(billId)}</div>
+        <div><strong>Date:</strong> ${esc(getCurrentDate())}</div>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+        <h4>Patient</h4>
+        <div class="row"><span class="k">Name:</span><span>${esc(selectedPatient?.name || 'N/A')}</span></div>
+        <div class="row"><span class="k">Patient ID:</span><span>${esc(selectedPatient?.id || 'N/A')}</span></div>
+        <div class="row"><span class="k">Phone:</span><span>${esc(selectedPatient?.phone || 'N/A')}</span></div>
+      </div>
+      <div class="section">
+        <h4>Bill Items</h4>
+        <table>
+          <thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="section">
+        <h4>Summary</h4>
+        <div class="row"><span class="k">Subtotal:</span><span>₹${esc(subtotal.toFixed(2))}</span></div>
+        <div class="row"><span class="k">Discount:</span><span>-₹${esc(discountAmt.toFixed(2))}</span></div>
+        <div class="row"><span class="k">Tax (${esc(tax)}%):</span><span>₹${esc(taxAmt.toFixed(2))}</span></div>
+        <div class="row"><span class="k">Grand Total:</span><span><strong>₹${esc(grandTotal.toFixed(2))}</strong></span></div>
+        <div class="row"><span class="k">Payment Method:</span><span>${esc(paymentMethod)}</span></div>
+        ${notes ? `<div class="row"><span class="k">Notes:</span><span>${esc(notes)}</span></div>` : ''}
+      </div>
+      <div class="footer">
+        <p class="note">This is a computer-generated invoice.</p>
+        <div class="sig"><div class="sig-line"></div><p>Authorized Signature</p></div>
+      </div>`;
+    printDocument('Invoice', body);
+  };
+
   const billColumns = [
     { key: 'description', label: 'Description', render: (v, row) => <Input name="desc" value={v} onChange={(e) => updateItem(row.id, 'description', e.target.value)} placeholder="Item description" /> },
     { key: 'quantity', label: 'Qty', render: (v, row) => <Input name="qty" type="number" value={v} onChange={(e) => updateItem(row.id, 'quantity', Number(e.target.value))} min="1" /> },
@@ -91,7 +141,7 @@ const Billing = () => {
             <p>Payment Method: {paymentMethod}</p>
           </div>
           <div className="success-actions">
-            <Button onClick={() => window.print()}>🖨️ Print Bill</Button>
+            <Button onClick={handlePrintBill}>🖨️ Print Bill</Button>
             <Button variant="outline" onClick={() => { setBillGenerated(false); setBillItems([]); setSelectedPatient(null); setSearchQuery(''); setDiscount(0); }}>Generate Another</Button>
           </div>
         </div>

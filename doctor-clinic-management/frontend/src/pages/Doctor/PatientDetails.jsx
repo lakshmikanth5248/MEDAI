@@ -5,8 +5,10 @@ import { Button } from '../../components/Buttons';
 import { patients, appointments, prescriptions, consultations } from '../../utils/mockData';
 import { formatDate, calculateAge, getInitials, getStatusBadgeClass } from '../../utils/helpers';
 import './PatientDetails.css';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const PatientDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('history');
@@ -18,23 +20,23 @@ const PatientDetails = () => {
   const patientConsults = consultations.filter((c) => c.patientId === patient.id);
 
   const tabs = [
-    { key: 'history', label: 'Medical History' },
-    { key: 'prescriptions', label: 'Prescriptions' },
-    { key: 'vitals', label: 'Current Vitals' },
+    { key: 'history', label: t('sidebar.medicalHistory') },
+    { key: 'prescriptions', label: t('sidebar.prescriptions') },
+    { key: 'vitals', label: t('pg.doctor.patientDetails.currentVitals') },
   ];
 
   return (
     <div className="page patient-details-page">
       <div className="pd-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
+        <button className="back-btn" onClick={() => navigate(-1)}>← {t('common.back')}</button>
         <div className="pd-avatar">{getInitials(patient.name)}</div>
         <div className="pd-info">
           <h1>{patient.name}</h1>
           <p className="text-muted">{patient.id} | {patient.gender} | {calculateAge(patient.dob)} yrs | {patient.bloodGroup}</p>
         </div>
         <div className="pd-actions">
-          <Button onClick={() => navigate(`/doctor/consultation/${patientAppts[0]?.id || 'new'}`)}>Start Consultation</Button>
-          <Button variant="outline" onClick={() => navigate('/doctor/prescription')}>Write Prescription</Button>
+          <Button onClick={() => navigate(`/doctor/consultation/${patientAppts[0]?.id || 'new'}`)}>{t('pg.doctor.patientDetails.startConsultation')}</Button>
+          <Button variant="outline" onClick={() => navigate('/doctor/prescription')}>{t('pg.doctor.patientDetails.writePrescription')}</Button>
         </div>
       </div>
 
@@ -54,7 +56,7 @@ const PatientDetails = () => {
                 <div className="pd-tl-content">
                   <span className="pd-tl-date">{formatDate(item.date)}</span>
                   {item.type === 'consultation' && (
-                    <><p><strong>Diagnosis:</strong> {item.diagnosis}</p><p className="text-muted">{item.symptoms}</p></>
+                    <><p><strong>{t('pg.doctor.patientDetails.diagnosis')}:</strong> {item.diagnosis}</p><p className="text-muted">{item.symptoms}</p></>
                   )}
                   {item.type === 'appointment' && (
                     <><p><strong>{item.doctorName}</strong> - {item.department}</p><p className="text-muted">{item.reason} | <span className={`status-badge ${getStatusBadgeClass(item.status)}`}>{item.status}</span></p></>
@@ -62,7 +64,7 @@ const PatientDetails = () => {
                 </div>
               </div>
             ))}
-          {patientConsults.length === 0 && patientAppts.length === 0 && <p className="text-muted">No medical history available.</p>}
+          {patientConsults.length === 0 && patientAppts.length === 0 && <p className="text-muted">{t('pg.doctor.patientDetails.noHistory')}</p>}
         </div>
       )}
 
@@ -79,21 +81,21 @@ const PatientDetails = () => {
               <ul className="pd-prx-meds">
                 {prx.medicines.map((m, i) => <li key={i}>{m.name} - {m.dosage}, {m.duration}</li>)}
               </ul>
-              <Button variant="link" size="sm">View Details →</Button>
+              <Button variant="link" size="sm">{t('pg.doctor.patientDetails.viewDetails')} →</Button>
             </Card>
           ))}
-          {patientPrx.length === 0 && <p className="text-muted">No prescriptions.</p>}
+          {patientPrx.length === 0 && <p className="text-muted">{t('pg.doctor.patientDetails.noPrescriptions')}</p>}
         </div>
       )}
 
       {activeTab === 'vitals' && (
-        <Card title="Current Vitals">
+        <Card title={t('pg.doctor.patientDetails.currentVitals')}>
           <div className="pd-vitals">
             {[
-              { label: 'Blood Pressure', value: '--/--', unit: 'mmHg', icon: '❤️' },
-              { label: 'Heart Rate', value: '--', unit: 'bpm', icon: '💓' },
-              { label: 'Temperature', value: '--', unit: '°F', icon: '🌡️' },
-              { label: 'Weight', value: '--', unit: 'kg', icon: '⚖️' },
+              { label: t('pg.doctor.patientDetails.bloodPressure'), value: '--/--', unit: 'mmHg', icon: '❤️' },
+              { label: t('pg.doctor.patientDetails.heartRate'), value: '--', unit: 'bpm', icon: '💓' },
+              { label: t('pg.doctor.patientDetails.temperature'), value: '--', unit: '°F', icon: '🌡️' },
+              { label: t('pg.doctor.patientDetails.weight'), value: '--', unit: 'kg', icon: '⚖️' },
             ].map((v, i) => (
               <div key={i} className="vital-item">
                 <span className="vital-icon">{v.icon}</span>

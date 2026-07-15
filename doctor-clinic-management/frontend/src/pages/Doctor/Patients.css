@@ -1,0 +1,15 @@
+.doctor-patients { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.doctor-patients .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+.doctor-patients .page-header h1 { margin: 0; }
+.patients-search { min-width: 300px; }
+.patients-search .form-group { margin-bottom: 0; }
+.patients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--spacing-md); }
+.patient-card { display: flex; align-items: center; gap: var(--spacing-md); background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-md); box-shadow: var(--shadow-sm); border: 1px solid var(--color-gray-200); cursor: pointer; transition: all var(--transition-fast); }
+.patient-card:hover { border-color: var(--color-sky-blue); box-shadow: var(--shadow-md); }
+.patient-card-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--color-sky-blue); display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-md); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+.patient-card-info { flex: 1; min-width: 0; }
+.patient-card-info h4 { margin: 0; font-size: var(--font-size-md); }
+.patient-card-info p { margin: 2px 0; font-size: var(--font-size-sm); }
+.patient-card-actions { display: flex; gap: var(--spacing-sm); flex-shrink: 0; }
+.btn-action { width: 36px; height: 36px; border-radius: var(--radius-full); border: 1px solid var(--color-gray-200); background: var(--color-white); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast); }
+.btn-action:hover { border-color: var(--color-sky-blue); background: var(--color-light-blue); }

@@ -1,31 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './Home.css';
 
 const FEATURES = [
-  { icon: '✚', title: 'Online Appointments', desc: 'Book appointments 24/7 with real-time slot availability across all departments.' },
-  { icon: '📋', title: 'Digital Prescriptions', desc: 'Generate and manage e-prescriptions with automatic drug interaction checks.' },
-  { icon: '💊', title: 'Pharmacy Integration', desc: 'Seamless connection with in-house pharmacy for instant medicine dispensing.' },
-  { icon: '📄', title: 'Medical Records', desc: 'Secure digital storage of patient history, lab reports, and treatment plans.' },
-  { icon: '✉️', title: 'SMS Reminders', desc: 'Automated appointment reminders and health tips via SMS notifications.' },
-  { icon: '📊', title: 'Reports & Analytics', desc: 'Comprehensive insights with customizable reports and performance dashboards.' },
+  { icon: '✚', titleKey: 'home.featOnlineAppointmentsTitle', descKey: 'home.featOnlineAppointmentsDesc' },
+  { icon: '📋', titleKey: 'home.featDigitalPrescriptionsTitle', descKey: 'home.featDigitalPrescriptionsDesc' },
+  { icon: '💊', titleKey: 'home.featPharmacyIntegrationTitle', descKey: 'home.featPharmacyIntegrationDesc' },
+  { icon: '📄', titleKey: 'home.featMedicalRecordsTitle', descKey: 'home.featMedicalRecordsDesc' },
+  { icon: '✉️', titleKey: 'home.featSmsRemindersTitle', descKey: 'home.featSmsRemindersDesc' },
+  { icon: '📊', titleKey: 'home.featReportsAnalyticsTitle', descKey: 'home.featReportsAnalyticsDesc' },
 ];
 
 const STATS = [
-  { label: 'Patients Treated', value: 5000, suffix: '+' },
-  { label: 'Qualified Doctors', value: 50, suffix: '+' },
-  { label: 'Departments', value: 10, suffix: '+' },
-  { label: 'Satisfaction Rate', value: 98, suffix: '%' },
+  { labelKey: 'home.statPatientsTreated', value: 5000, suffix: '+' },
+  { labelKey: 'home.statQualifiedDoctors', value: 50, suffix: '+' },
+  { labelKey: 'home.statDepartments', value: 10, suffix: '+' },
+  { labelKey: 'home.statSatisfactionRate', value: 98, suffix: '%' },
 ];
 
 const STEPS = [
-  { step: '01', title: 'Register', desc: 'Create your account in under 2 minutes' },
-  { step: '02', title: 'Book Appointment', desc: 'Choose a doctor and pick a time slot' },
-  { step: '03', title: 'Visit Doctor', desc: 'Get expert consultation and diagnosis' },
-  { step: '04', title: 'Get Treatment', desc: 'Receive prescriptions and follow-up care' },
+  { step: '01', titleKey: 'home.stepRegisterTitle', descKey: 'home.stepRegisterDesc' },
+  { step: '02', titleKey: 'home.stepBookTitle', descKey: 'home.stepBookDesc' },
+  { step: '03', titleKey: 'home.stepVisitTitle', descKey: 'home.stepVisitDesc' },
+  { step: '04', titleKey: 'home.stepTreatmentTitle', descKey: 'home.stepTreatmentDesc' },
 ];
 
-function AnimatedStat({ value, suffix, label }) {
+function AnimatedStat({ value, suffix, labelKey }) {
+  const { t } = useTranslation();
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const hasAnimated = useRef(false);
@@ -60,12 +62,14 @@ function AnimatedStat({ value, suffix, label }) {
   return (
     <div className="stat-card" ref={ref}>
       <span className="stat-value">{count.toLocaleString()}{suffix}</span>
-      <span className="stat-label">{label}</span>
+      <span className="stat-label">{t(labelKey)}</span>
     </div>
   );
 }
 
 export default function Home() {
+  const { t } = useTranslation();
+
   return (
     <div className="home">
       <header className="home-header">
@@ -75,10 +79,10 @@ export default function Home() {
             <span className="home-logo-text">ClinicManager</span>
           </Link>
           <nav className="home-nav">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
-            <Link to="/login" className="home-nav-login">Sign In</Link>
-            <Link to="/register" className="home-nav-register">Get Started</Link>
+            <a href="#features">{t('home.features')}</a>
+            <a href="#how-it-works">{t('home.howItWorks')}</a>
+            <Link to="/login" className="home-nav-login">{t('home.signIn')}</Link>
+            <Link to="/register" className="home-nav-register">{t('home.getStarted')}</Link>
           </nav>
         </div>
       </header>
@@ -86,15 +90,14 @@ export default function Home() {
       <section className="hero">
         <div className="hero-bg" />
         <div className="hero-content">
-          <span className="hero-badge">Trusted by 5000+ patients</span>
-          <h1 className="hero-title">Your Health,<br />Our Priority</h1>
+          <span className="hero-badge">{t('home.heroBadge')}</span>
+          <h1 className="hero-title">{t('home.heroTitle1')}<br />{t('home.heroTitle2')}</h1>
           <p className="hero-subtitle">
-            A complete clinic management solution that streamlines appointments,
-            medical records, prescriptions, and pharmacy operations — all in one place.
+            {t('home.heroSubtitle')}
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="btn btn-primary">Get Started</Link>
-            <a href="#features" className="btn btn-secondary">Learn More</a>
+            <Link to="/register" className="btn btn-primary">{t('home.heroGetStarted')}</Link>
+            <a href="#features" className="btn btn-secondary">{t('home.heroLearnMore')}</a>
           </div>
         </div>
         <div className="hero-visual">
@@ -109,10 +112,10 @@ export default function Home() {
 
       <section id="features" className="features">
         <div className="section-header">
-          <span className="section-tag">Features</span>
-          <h2 className="section-title">Everything You Need</h2>
+          <span className="section-tag">{t('home.featuresTag')}</span>
+          <h2 className="section-title">{t('home.featuresTitle')}</h2>
           <p className="section-desc">
-            Powerful tools designed to streamline your clinic operations and enhance patient care.
+            {t('home.featuresDesc')}
           </p>
         </div>
         <div className="features-grid">
@@ -121,8 +124,8 @@ export default function Home() {
               <div className="feature-icon" style={{ background: `var(--feature-color-${i + 1})` }}>
                 {f.icon}
               </div>
-              <h3 className="feature-title">{f.title}</h3>
-              <p className="feature-desc">{f.desc}</p>
+              <h3 className="feature-title">{t(f.titleKey)}</h3>
+              <p className="feature-desc">{t(f.descKey)}</p>
             </div>
           ))}
         </div>
@@ -132,12 +135,12 @@ export default function Home() {
         <div className="stats-overlay" />
         <div className="stats-inner">
           <div className="section-header light">
-            <span className="section-tag">Our Impact</span>
-            <h2 className="section-title">By the Numbers</h2>
+            <span className="section-tag">{t('home.ourImpact')}</span>
+            <h2 className="section-title">{t('home.byTheNumbers')}</h2>
           </div>
           <div className="stats-grid">
             {STATS.map((s, i) => (
-              <AnimatedStat key={i} value={s.value} suffix={s.suffix} label={s.label} />
+              <AnimatedStat key={i} value={s.value} suffix={s.suffix} labelKey={s.labelKey} />
             ))}
           </div>
         </div>
@@ -145,10 +148,10 @@ export default function Home() {
 
       <section id="how-it-works" className="how-it-works">
         <div className="section-header">
-          <span className="section-tag">How It Works</span>
-          <h2 className="section-title">Four Simple Steps</h2>
+          <span className="section-tag">{t('home.howTag')}</span>
+          <h2 className="section-title">{t('home.howTitle')}</h2>
           <p className="section-desc">
-            Getting started with ClinicManager is quick and easy.
+            {t('home.howDesc')}
           </p>
         </div>
         <div className="steps-row">
@@ -156,8 +159,8 @@ export default function Home() {
             <div className="step-card" key={i}>
               <div className="step-number">{s.step}</div>
               <div className="step-connector" />
-              <h3 className="step-title">{s.title}</h3>
-              <p className="step-desc">{s.desc}</p>
+              <h3 className="step-title">{t(s.titleKey)}</h3>
+              <p className="step-desc">{t(s.descKey)}</p>
             </div>
           ))}
         </div>
@@ -165,11 +168,11 @@ export default function Home() {
 
       <section className="cta">
         <div className="cta-content">
-          <h2 className="cta-title">Ready to Transform Your Clinic?</h2>
+          <h2 className="cta-title">{t('home.ctaTitle')}</h2>
           <p className="cta-desc">
-            Join thousands of healthcare providers who trust ClinicManager.
+            {t('home.ctaDesc')}
           </p>
-          <Link to="/register" className="btn btn-primary btn-lg">Start Free Trial</Link>
+          <Link to="/register" className="btn btn-primary btn-lg">{t('home.startFreeTrial')}</Link>
         </div>
       </section>
 
@@ -179,33 +182,33 @@ export default function Home() {
             <span className="home-logo-icon">+C</span>
             <span className="home-logo-text">ClinicManager</span>
             <p className="home-footer-desc">
-              Complete clinic management solution for modern healthcare providers.
+              {t('home.footerDesc')}
             </p>
           </div>
           <div className="home-footer-links">
             <div className="home-footer-col">
-              <h4>Product</h4>
-              <a href="#features">Features</a>
-              <a href="#how-it-works">How It Works</a>
-              <Link to="/login">Sign In</Link>
-              <Link to="/register">Register</Link>
+              <h4>{t('home.product')}</h4>
+              <a href="#features">{t('home.features')}</a>
+              <a href="#how-it-works">{t('home.howItWorks')}</a>
+              <Link to="/login">{t('home.signIn')}</Link>
+              <Link to="/register">{t('home.register')}</Link>
             </div>
             <div className="home-footer-col">
-              <h4>Company</h4>
-              <a href="/">About Us</a>
-              <a href="/">Careers</a>
-              <a href="/">Contact</a>
+              <h4>{t('home.company')}</h4>
+              <a href="/">{t('home.aboutUs')}</a>
+              <a href="/">{t('home.careers')}</a>
+              <a href="/">{t('home.contact')}</a>
             </div>
             <div className="home-footer-col">
-              <h4>Legal</h4>
-              <a href="/">Privacy Policy</a>
-              <a href="/">Terms of Service</a>
-              <a href="/">HIPAA Compliance</a>
+              <h4>{t('home.legal')}</h4>
+              <a href="/">{t('home.privacyPolicy')}</a>
+              <a href="/">{t('home.terms')}</a>
+              <a href="/">{t('home.hipaa')}</a>
             </div>
           </div>
         </div>
         <div className="home-footer-bottom">
-          <p>&copy; {new Date().getFullYear()} ClinicManager. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} ClinicManager. {t('footer.allRightsReserved')}</p>
         </div>
       </footer>
     </div>

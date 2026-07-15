@@ -5,6 +5,7 @@ import Home from '../pages/Home/Home';
 import Login from '../pages/Login/Login';
 import Register from '../pages/Register/Register';
 import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword/ResetPassword';
 import NotFound from '../pages/NotFound';
 
 import AdminDashboard from '../pages/Admin/Dashboard';
@@ -16,6 +17,10 @@ import AdminSmsLogs from '../pages/Admin/SmsLogs';
 import AdminClinics from '../pages/Admin/Clinics';
 import AdminSettings from '../pages/Admin/Settings';
 
+import SharedProfile from '../pages/Shared/Profile';
+import Notifications from '../pages/Shared/Notifications';
+import DoctorConsultations from '../pages/Doctor/Consultations';
+
 import ReceptionDashboard from '../pages/Reception/Dashboard';
 import RegisterPatient from '../pages/Reception/RegisterPatient';
 import PatientsList from '../pages/Reception/PatientsList';
@@ -25,6 +30,7 @@ import Billing from '../pages/Reception/Billing';
 import DoctorDashboard from '../pages/Doctor/Dashboard';
 import TodayAppointments from '../pages/Doctor/TodayAppointments';
 import PatientDetails from '../pages/Doctor/PatientDetails';
+import DoctorPatients from '../pages/Doctor/Patients';
 import Consultation from '../pages/Doctor/Consultation';
 import DoctorPrescription from '../pages/Doctor/Prescription';
 import DoctorProfile from '../pages/Doctor/Profile';
@@ -89,6 +95,8 @@ export default function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
 
+      <Route path="/reset-password" element={<ResetPassword />} />
+
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -99,19 +107,27 @@ export default function AppRoutes() {
           <Route path="/admin/sms-logs" element={<AdminSmsLogs />} />
           <Route path="/admin/clinics" element={<AdminClinics />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/profile" element={<SharedProfile />} />
+          <Route path="/admin/notifications" element={<Notifications />} />
 
           <Route path="/reception/dashboard" element={<ReceptionDashboard />} />
           <Route path="/reception/register-patient" element={<RegisterPatient />} />
           <Route path="/reception/patients" element={<PatientsList />} />
           <Route path="/reception/appointments" element={<ReceptionAppointments />} />
           <Route path="/reception/billing" element={<Billing />} />
+          <Route path="/reception/profile" element={<SharedProfile />} />
+          <Route path="/reception/notifications" element={<Notifications />} />
 
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor/appointments" element={<TodayAppointments />} />
+          <Route path="/doctor/patient" element={<DoctorPatients />} />
           <Route path="/doctor/patient/:id" element={<PatientDetails />} />
+          <Route path="/doctor/consultations" element={<DoctorConsultations />} />
           <Route path="/doctor/consultation/:id" element={<Consultation />} />
+          <Route path="/doctor/prescription" element={<DoctorPrescription />} />
           <Route path="/doctor/prescription/:id" element={<DoctorPrescription />} />
           <Route path="/doctor/profile" element={<DoctorProfile />} />
+          <Route path="/doctor/notifications" element={<Notifications />} />
 
           <Route path="/patient/dashboard" element={<PatientDashboard />} />
           <Route path="/patient/departments" element={<PatientDepartments />} />
@@ -121,11 +137,14 @@ export default function AppRoutes() {
           <Route path="/patient/prescriptions" element={<PatientPrescriptions />} />
           <Route path="/patient/medical-history" element={<MedicalHistory />} />
           <Route path="/patient/profile" element={<PatientProfile />} />
+          <Route path="/patient/notifications" element={<Notifications />} />
 
           <Route path="/medical-store/dashboard" element={<MedicalStoreDashboard />} />
           <Route path="/medical-store/pending" element={<PendingPrescriptions />} />
           <Route path="/medical-store/dispensed" element={<DispensedMedicines />} />
           <Route path="/medical-store/inventory" element={<MedicineInventory />} />
+          <Route path="/medical-store/profile" element={<SharedProfile />} />
+          <Route path="/medical-store/notifications" element={<Notifications />} />
         </Route>
       </Route>
 

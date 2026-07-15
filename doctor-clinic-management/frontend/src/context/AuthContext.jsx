@@ -1,14 +1,8 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
+import { getUsers, addUser } from '../services/userStore';
+import { useTranslation } from '../i18n/LanguageContext';
 
 export const AuthContext = createContext(null);
-
-const MOCK_USERS = {
-  'admin@clinic.com': { password: 'admin123', role: 'admin', name: 'Admin User', id: 3 },
-  'doctor@clinic.com': { password: 'doctor123', role: 'doctor', name: 'Dr. Arjun Mehta', id: 1 },
-  'reception@clinic.com': { password: 'reception123', role: 'reception', name: 'Priya Sharma', id: 2 },
-  'patient@clinic.com': { password: 'patient123', role: 'patient', name: 'Rajesh Gupta', id: 1 },
-  'store@clinic.com': { password: 'store123', role: 'medical_store', name: 'City Pharmacy', id: 1 },
-};
 
 const ROLE_LABELS = {
   admin: 'Admin',
@@ -19,6 +13,7 @@ const ROLE_LABELS = {
 };
 
 export function AuthProvider({ children }) {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,16 +34,19 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (email, password, role) => {
     setLoading(true);
     setError(null);
     try {
       await new Promise((resolve) => setTimeout(resolve, 800));
-      const matchedUser = MOCK_USERS[email];
+      const matchedUser = getUsers()[email?.trim().toLowerCase()];
       if (!matchedUser || matchedUser.password !== password) {
-        setError('Invalid email or password');
-        setLoading(false);
-        return false;
+        const msg = t('auth.invalidCredentials');
+        setError(msg); setLoading(false); return false;
+      }
+      if (matchedUser.role !== role) {
+        const msg = t('auth.invalidCredentials');
+        setError(msg); setLoading(false); return false;
       }
       const tokenStr = 'mock-jwt-token-' + Date.now();
       const userData = {
@@ -64,8 +62,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem('user', JSON.stringify(userData));
       setLoading(false);
       return true;
-    } catch (err) {
-      setError('Login failed. Please try again.');
+    } catch {
+      setError(t('auth.errorOccurred'));
       setLoading(false);
       return false;
     }
@@ -84,15 +82,23 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       await new Promise((resolve) => setTimeout(resolve, 800));
-      if (MOCK_USERS[data.email]) {
-        setError('An account with this email already exists');
+      const role = data.role || 'patient';
+      const added = addUser({
+        email: data.email,
+        password: data.password,
+        role,
+        name: data.fullName || data.name || data.email,
+        id: data.id,
+      });
+      if (!added) {
+        setError(t('auth.accountExists'));
         setLoading(false);
         return false;
       }
       setLoading(false);
       return true;
     } catch {
-      setError('Registration failed. Please try again.');
+      setError(t('auth.errorOccurred'));
       setLoading(false);
       return false;
     }

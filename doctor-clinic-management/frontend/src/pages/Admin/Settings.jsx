@@ -3,16 +3,18 @@ import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Input, Select, Textarea } from '../../components/Forms';
 import './Settings.css';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const Settings = () => {
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState('general');
 
   const sections = [
-    { key: 'general', label: 'General' },
-    { key: 'notifications', label: 'Notifications' },
-    { key: 'security', label: 'Security' },
-    { key: 'appearance', label: 'Appearance' },
-    { key: 'backup', label: 'Backup' },
+    { key: 'general', label: t('pg.admin.settings.secGeneral') },
+    { key: 'notifications', label: t('pg.admin.settings.secNotifications') },
+    { key: 'security', label: t('pg.admin.settings.secSecurity') },
+    { key: 'appearance', label: t('pg.admin.settings.secAppearance') },
+    { key: 'backup', label: t('pg.admin.settings.secBackup') },
   ];
 
   const renderContent = () => {

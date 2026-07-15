@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { findUserByEmail, encodeResetToken } from '../../services/userStore';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './ForgotPassword.css';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [resetUrl, setResetUrl] = useState('');
   const [error, setError] = useState('');
   const [fieldError, setFieldError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
     if (!email.trim()) {
-      setFieldError('Email is required');
+      setFieldError(t('auth.emailRequired'));
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFieldError('Invalid email format');
+      setFieldError(t('auth.emailInvalid'));
       return false;
     }
     return true;
@@ -26,12 +30,19 @@ export default function ForgotPassword() {
     setError('');
     setFieldError('');
     if (!validate()) return;
+    const registered = findUserByEmail(email);
+    if (!registered) {
+      setFieldError(t('forgot.noAccountFound'));
+      return;
+    }
     setLoading(true);
     try {
       await new Promise(r => setTimeout(r, 1500));
+      const token = encodeResetToken(email);
+      setResetUrl(`${window.location.origin}/reset-password?token=${encodeURIComponent(token)}`);
       setSent(true);
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('auth.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -49,9 +60,9 @@ export default function ForgotPassword() {
           <>
             <div className="forgot-header">
               <div className="forgot-icon">🔒</div>
-              <h2 className="forgot-title">Forgot Password?</h2>
+              <h2 className="forgot-title">{t('forgot.title')}</h2>
               <p className="forgot-desc">
-                Enter your registered email address and we'll send you a reset link.
+                {t('forgot.desc')}
               </p>
             </div>
 
@@ -59,12 +70,12 @@ export default function ForgotPassword() {
 
             <form onSubmit={handleSubmit} noValidate>
               <div className="form-group">
-                <label className="form-label" htmlFor="forgot-email">Email Address</label>
+                <label className="form-label" htmlFor="forgot-email">{t('auth.email')}</label>
                 <input
                   id="forgot-email"
                   type="email"
                   className={`form-input${fieldError ? ' error' : ''}`}
-                  placeholder="Enter your email"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setFieldError(''); }}
                 />
@@ -79,10 +90,10 @@ export default function ForgotPassword() {
                 {loading ? (
                   <span className="btn-loading">
                     <span className="spinner" />
-                    Sending...
+                    {t('auth.sending')}
                   </span>
                 ) : (
-                  'Send Reset Link'
+                  t('auth.sendResetLink')
                 )}
               </button>
             </form>
@@ -90,18 +101,28 @@ export default function ForgotPassword() {
         ) : (
           <div className="forgot-success">
             <div className="forgot-success-icon">✉️</div>
-            <h2 className="forgot-title">Check Your Email</h2>
+            <h2 className="forgot-title">{t('forgot.emailSentTitle')}</h2>
             <p className="forgot-desc">
-              We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
+              {t('forgot.emailSentDesc')} <strong>{email}</strong> {t('forgot.emailSentDesc2')}
             </p>
+            {resetUrl && (
+              <div className="forgot-reset-link">
+                <a href={resetUrl} target="_blank" rel="noopener noreferrer" className="forgot-submit" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+                  {t('forgot.changePassword')}
+                </a>
+                <p className="forgot-desc" style={{ marginTop: 8, fontSize: 12, wordBreak: 'break-all', color: 'var(--color-gray-400)' }}>
+                  {t('forgot.sentNote')} <strong>{email}</strong>. {t('forgot.emailSentDesc2')}
+                </p>
+              </div>
+            )}
             <p className="forgot-desc" style={{ marginTop: 8, fontSize: 13, color: 'var(--color-gray-400)' }}>
-              Didn't receive the email? Check your spam folder or{' '}
+              {t('forgot.notReceived')}{' '}
               <button
                 type="button"
                 className="forgot-resend"
                 onClick={() => setSent(false)}
               >
-                try again
+                {t('forgot.tryAgain')}
               </button>
             </p>
           </div>
@@ -109,7 +130,7 @@ export default function ForgotPassword() {
 
         <div className="forgot-back">
           <Link to="/login" className="form-link">
-            ← Back to Login
+            ← {t('forgot.backToLogin')}
           </Link>
         </div>
       </div>

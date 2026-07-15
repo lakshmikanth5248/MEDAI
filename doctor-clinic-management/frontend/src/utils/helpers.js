@@ -133,3 +133,24 @@ export function validatePhone(phone) {
   const re = /^\d{10}$/;
   return re.test(phone.replace(/\D/g, ''));
 }
+
+export default {
+  formatDate,
+  formatTime,
+  generatePatientId,
+  generateBillId,
+  generatePrescriptionId,
+  generateAppointmentId,
+  getStatusColor,
+  getInitials,
+  truncateText,
+  calculateAge,
+  classNames,
+  getStatusBadgeClass,
+  formatCurrency,
+  debounce,
+  getCurrentDate,
+  getCurrentTime,
+  validateEmail,
+  validatePhone,
+};

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
-import { Select } from '../../components/Forms';
 import { Modal } from '../../components/Modal';
-import { appointments, currentPatient } from '../../utils/mockData';
+import { appointments, currentPatient, doctors } from '../../utils/mockData';
 import { getStatusBadgeClass, formatDate, getInitials } from '../../utils/helpers';
 import './MyAppointments.css';
 
@@ -12,11 +10,42 @@ const MyAppointments = () => {
   const [selectedAppt, setSelectedAppt] = useState(null);
   const [dateFilter, setDateFilter] = useState('');
 
-  const allPatientAppts = appointments.filter((a) => a.patientId === currentPatient.id);
+  const [allPatientAppts, setAllPatientAppts] = useState(() =>
+    appointments
+      .filter((a) => a.patientId === currentPatient.id)
+      .map((a) => ({ ...a, doctorName: doctors.find((d) => d.id === a.doctorId)?.name || 'Unknown' }))
+  );
 
-  const upcoming = allPatientAppts.filter((a) => ['Scheduled', 'Confirmed', 'Arrived'].includes(a.status));
-  const past = allPatientAppts.filter((a) => a.status === 'Completed');
-  const cancelled = allPatientAppts.filter((a) => a.status === 'Cancelled');
+  const [rescheduleAppt, setRescheduleAppt] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleTime, setRescheduleTime] = useState('');
+
+  const cancelAppointment = (id) => {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    setAllPatientAppts((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' } : a))
+    );
+  };
+
+  const openReschedule = (appt) => {
+    setRescheduleAppt(appt);
+    setRescheduleDate(appt.date);
+    setRescheduleTime(appt.time);
+  };
+
+  const confirmReschedule = () => {
+    if (!rescheduleAppt) return;
+    setAllPatientAppts((prev) =>
+      prev.map((a) =>
+        a.id === rescheduleAppt.id ? { ...a, date: rescheduleDate, time: rescheduleTime, status: 'rescheduled' } : a
+      )
+    );
+    setRescheduleAppt(null);
+  };
+
+  const upcoming = allPatientAppts.filter((a) => ['scheduled', 'confirmed', 'arrived'].includes(a.status?.toLowerCase()));
+  const past = allPatientAppts.filter((a) => a.status?.toLowerCase() === 'completed');
+  const cancelled = allPatientAppts.filter((a) => a.status?.toLowerCase() === 'cancelled');
 
   const displayAppts = activeTab === 'upcoming' ? upcoming : activeTab === 'past' ? past : cancelled;
 
@@ -62,13 +91,13 @@ const MyAppointments = () => {
                   <span>⏰ {appt.time}</span>
                   <span className={`status-badge ${getStatusBadgeClass(appt.status)}`}>{appt.status}</span>
                 </div>
-                <p className="text-muted">Room: {appt.roomNo}</p>
+                <p className="text-muted">{appt.reason}</p>
               </div>
               <div className="appt-card-actions">
-                {['Scheduled', 'Confirmed'].includes(appt.status) && (
+                {['scheduled', 'confirmed'].includes(appt.status?.toLowerCase()) && (
                   <>
-                    <Button variant="danger" size="sm">Cancel</Button>
-                    <Button variant="outline" size="sm">Reschedule</Button>
+                    <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); cancelAppointment(appt.id); }}>Cancel</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openReschedule(appt); }}>Reschedule</Button>
                   </>
                 )}
               </div>
@@ -86,7 +115,32 @@ const MyAppointments = () => {
             <div className="appt-detail-row"><label>Time</label><span>{selectedAppt.time}</span></div>
             <div className="appt-detail-row"><label>Status</label><span className={`status-badge ${getStatusBadgeClass(selectedAppt.status)}`}>{selectedAppt.status}</span></div>
             <div className="appt-detail-row"><label>Reason</label><span>{selectedAppt.reason}</span></div>
-            <div className="appt-detail-row"><label>Room</label><span>{selectedAppt.roomNo}</span></div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={!!rescheduleAppt}
+        onClose={() => setRescheduleAppt(null)}
+        title="Reschedule Appointment"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setRescheduleAppt(null)}>Cancel</Button>
+            <Button size="sm" onClick={confirmReschedule}>Save</Button>
+          </>
+        }
+      >
+        {rescheduleAppt && (
+          <div className="reschedule-form">
+            <p className="text-muted">Doctor: {rescheduleAppt.doctorName}</p>
+            <div className="form-group">
+              <label>Date</label>
+              <input type="date" className="form-input" value={rescheduleDate} onChange={(e) => setRescheduleDate(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Time</label>
+              <input type="time" className="form-input" value={rescheduleTime} onChange={(e) => setRescheduleTime(e.target.value)} />
+            </div>
           </div>
         )}
       </Modal>

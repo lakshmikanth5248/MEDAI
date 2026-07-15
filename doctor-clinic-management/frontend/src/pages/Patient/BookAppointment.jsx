@@ -22,7 +22,7 @@ const BookAppointment = () => {
   const [success, setSuccess] = useState(false);
   const [apptId, setApptId] = useState('');
 
-  const filteredDoctors = doctors.filter((d) => d.department === selectedDept?.name);
+  const filteredDoctors = doctors.filter((d) => d.departmentId === selectedDept?.id);
 
   const handleConfirm = () => {
     const id = generateAppointmentId();

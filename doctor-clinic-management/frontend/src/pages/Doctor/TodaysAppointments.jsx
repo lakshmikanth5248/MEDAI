@@ -7,14 +7,23 @@ import { Modal } from '../../components/Modal';
 import { appointments, currentDoctor, patients } from '../../utils/mockData';
 import { getStatusBadgeClass, getInitials, calculateAge } from '../../utils/helpers';
 import './TodaysAppointments.css';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const TodaysAppointments = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedAppt, setSelectedAppt] = useState(null);
 
-  const todayAppts = appointments.filter((a) => a.date === '2024-12-26' && a.doctorId === currentDoctor.id);
+  const todayDate = '2025-07-14';
+
+  const todayAppts = appointments
+    .filter((a) => a.date === todayDate && a.doctorId === currentDoctor.id)
+    .map((a) => ({
+      ...a,
+      patientName: patients.find((p) => p.id === a.patientId)?.name || 'Unknown',
+    }));
 
   const filtered = todayAppts.filter((a) => {
     const q = search.toLowerCase();
@@ -28,15 +37,15 @@ const TodaysAppointments = () => {
   return (
     <div className="page todays-appointments">
       <div className="page-header">
-        <h1>Today's Appointments</h1>
+        <h1>{t('sidebar.todayAppointments')}</h1>
         <div className="ta-filters">
-          <Input name="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search patient..." />
+          <Input name="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('pg.doctor.todaysAppointments.searchPlaceholder')} />
           <Select name="status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} options={[
-            { value: 'All', label: 'All' },
-            { value: 'Scheduled', label: 'Scheduled' },
-            { value: 'Confirmed', label: 'Confirmed' },
-            { value: 'Arrived', label: 'Arrived' },
-            { value: 'Completed', label: 'Completed' },
+            { value: 'All', label: t('pg.doctor.todaysAppointments.all') },
+            { value: 'Scheduled', label: t('pg.doctor.todaysAppointments.scheduled') },
+            { value: 'Confirmed', label: t('pg.doctor.todaysAppointments.confirmed') },
+            { value: 'Arrived', label: t('pg.doctor.todaysAppointments.arrived') },
+            { value: 'Completed', label: t('pg.doctor.todaysAppointments.completed') },
           ]} />
         </div>
       </div>
@@ -56,24 +65,24 @@ const TodaysAppointments = () => {
                 <span className={`status-badge ${getStatusBadgeClass(appt.status)}`}>{appt.status}</span>
               </div>
               <div className="today-actions">
-                {appt.status === 'Arrived' && <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate(`/doctor/consultation/${appt.id}`); }}>Start Consultation</Button>}
-                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setSelectedAppt(appt); }}>View Details</Button>
-                {appt.status !== 'Completed' && appt.status !== 'Cancelled' && <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); }}>No-Show</Button>}
+                {appt.status === 'Arrived' && <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate(`/doctor/consultation/${appt.id}`); }}>{t('pg.doctor.todaysAppointments.startConsultation')}</Button>}
+                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setSelectedAppt(appt); }}>{t('pg.doctor.todaysAppointments.viewDetails')}</Button>
+                {appt.status !== 'Completed' && appt.status !== 'Cancelled' && <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); }}>{t('pg.doctor.todaysAppointments.noShow')}</Button>}
               </div>
             </div>
           );
         })}
-        {filtered.length === 0 && <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>No appointments found.</p>}
+        {filtered.length === 0 && <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>{t('pg.doctor.todaysAppointments.noAppointments')}</p>}
       </div>
 
-      <Modal isOpen={!!selectedAppt} onClose={() => setSelectedAppt(null)} title="Appointment Details">
+      <Modal isOpen={!!selectedAppt} onClose={() => setSelectedAppt(null)} title={t('pg.doctor.todaysAppointments.appointmentDetails')}>
         {selectedAppt && (
           <div className="appt-detail-modal">
-            <div className="appt-detail-row"><label>Patient</label><span>{selectedAppt.patientName}</span></div>
-            <div className="appt-detail-row"><label>Time</label><span>{selectedAppt.time}</span></div>
-            <div className="appt-detail-row"><label>Reason</label><span>{selectedAppt.reason}</span></div>
-            <div className="appt-detail-row"><label>Status</label><span className={`status-badge ${getStatusBadgeClass(selectedAppt.status)}`}>{selectedAppt.status}</span></div>
-            <div className="appt-detail-row"><label>Room</label><span>{selectedAppt.roomNo}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.doctor.todaysAppointments.patient')}</label><span>{selectedAppt.patientName}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.doctor.todaysAppointments.time')}</label><span>{selectedAppt.time}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.doctor.todaysAppointments.reason')}</label><span>{selectedAppt.reason}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.doctor.todaysAppointments.status')}</label><span className={`status-badge ${getStatusBadgeClass(selectedAppt.status)}`}>{selectedAppt.status}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.doctor.todaysAppointments.room')}</label><span>{selectedAppt.roomNo}</span></div>
           </div>
         )}
       </Modal>

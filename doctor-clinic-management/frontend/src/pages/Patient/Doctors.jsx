@@ -4,7 +4,7 @@ import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Input } from '../../components/Forms';
 import { Modal } from '../../components/Modal';
-import { doctors } from '../../utils/mockData';
+import { doctors, departments } from '../../utils/mockData';
 import { getInitials } from '../../utils/helpers';
 import './Doctors.css';
 
@@ -16,10 +16,12 @@ const Doctors = () => {
   const [search, setSearch] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
-  const departments = ['All', ...new Set(doctors.map((d) => d.department))];
+  const getDeptName = (deptId) => departments.find((d) => d.id === deptId)?.name || 'Unknown';
+
+  const deptNames = ['All', ...departments.map((d) => d.name)];
 
   const filtered = doctors.filter((d) => {
-    const matchDept = activeDept === 'All' || d.department === activeDept;
+    const matchDept = activeDept === 'All' || getDeptName(d.departmentId) === activeDept;
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.specialization.toLowerCase().includes(search.toLowerCase());
     return matchDept && matchSearch;
   });
@@ -33,15 +35,12 @@ const Doctors = () => {
     const detailData = [
       { label: 'Name', value: selectedDoctor.name },
       { label: 'Specialization', value: selectedDoctor.specialization },
-      { label: 'Department', value: selectedDoctor.department },
+      { label: 'Department', value: getDeptName(selectedDoctor.departmentId) },
       { label: 'Experience', value: `${selectedDoctor.experience} years` },
-      { label: 'Qualification', value: selectedDoctor.qualification },
-      { label: 'License No', value: selectedDoctor.licenseNo },
+      { label: 'Qualification', value: selectedDoctor.education },
       { label: 'Fee', value: `₹${selectedDoctor.fee}` },
       { label: 'Rating', value: `★ ${selectedDoctor.rating}` },
-      { label: 'Email', value: selectedDoctor.email },
-      { label: 'Phone', value: selectedDoctor.phone },
-      { label: 'Availability', value: selectedDoctor.availability.join(', ') },
+      { label: 'Availability', value: selectedDoctor.availability },
     ];
   }
 
@@ -53,7 +52,7 @@ const Doctors = () => {
       </div>
 
       <div className="dept-tabs">
-        {departments.map((dept) => (
+        {deptNames.map((dept) => (
           <button key={dept} className={`dept-tab ${activeDept === dept ? 'active' : ''}`} onClick={() => setActiveDept(dept)}>
             {dept}
           </button>
@@ -71,7 +70,7 @@ const Doctors = () => {
               <span className="doc-rating">★ {doc.rating}</span>
             </div>
             <p className="doc-fee">₹{doc.fee}</p>
-            <p className="doc-availability">{doc.availability.slice(0, 3).join(', ')}{doc.availability.length > 3 ? '...' : ''}</p>
+            <p className="doc-availability">{doc.availability}</p>
             <Button size="sm" onClick={(e) => { e.stopPropagation(); navigate('/patient/book-appointment', { state: { doctor: doc } }); }}>
               Book Appointment
             </Button>
@@ -86,17 +85,14 @@ const Doctors = () => {
               <div className="dp-avatar" style={{ backgroundColor: '#38BDF8' }}>{getInitials(selectedDoctor.name)}</div>
               <div>
                 <h2>{selectedDoctor.name}</h2>
-                <p className="text-muted">{selectedDoctor.specialization} | {selectedDoctor.department}</p>
+                <p className="text-muted">{selectedDoctor.specialization} | {getDeptName(selectedDoctor.departmentId)}</p>
                 <div className="dp-rating">★ {selectedDoctor.rating} | {selectedDoctor.experience} years experience</div>
               </div>
             </div>
             <div className="dp-details">
-              <div className="dp-detail-item"><label>Qualification</label><span>{selectedDoctor.qualification}</span></div>
-              <div className="dp-detail-item"><label>License No</label><span>{selectedDoctor.licenseNo}</span></div>
+              <div className="dp-detail-item"><label>Qualification</label><span>{selectedDoctor.education}</span></div>
               <div className="dp-detail-item"><label>Consultation Fee</label><span>₹{selectedDoctor.fee}</span></div>
-              <div className="dp-detail-item"><label>Email</label><span>{selectedDoctor.email}</span></div>
-              <div className="dp-detail-item"><label>Phone</label><span>{selectedDoctor.phone}</span></div>
-              <div className="dp-detail-item"><label>Available Days</label><span>{selectedDoctor.availability.join(', ')}</span></div>
+              <div className="dp-detail-item"><label>Availability</label><span>{selectedDoctor.availability}</span></div>
             </div>
             <Button onClick={() => { setSelectedDoctor(null); navigate('/patient/book-appointment', { state: { doctor: selectedDoctor } }); }}>
               Book Appointment

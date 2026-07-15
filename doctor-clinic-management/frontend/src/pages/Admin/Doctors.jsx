@@ -6,8 +6,10 @@ import { Input, Select } from '../../components/Forms';
 import { Modal } from '../../components/Modal';
 import { doctors, departments } from '../../utils/mockData';
 import './Doctors.css';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const DoctorsPage = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -23,25 +25,25 @@ const DoctorsPage = () => {
   });
 
   const columns = [
-    { key: 'id', label: 'Doctor ID' },
-    { key: 'name', label: 'Name' },
-    { key: 'specialization', label: 'Specialization' },
-    { key: 'department', label: 'Department' },
-    { key: 'experience', label: 'Experience', render: (v) => `${v} yrs` },
-    { key: 'fee', label: 'Fee', render: (v) => `₹${v}` },
+    { key: 'doctorId', label: t('pg.admin.doctors.colDoctorId') },
+    { key: 'name', label: t('pg.admin.doctors.colName') },
+    { key: 'specialization', label: t('pg.admin.doctors.colSpecialization') },
+    { key: 'department', label: t('pg.admin.doctors.colDepartment') },
+    { key: 'experience', label: t('pg.admin.doctors.colExperience'), render: (v) => `${v} yrs` },
+    { key: 'fee', label: t('pg.admin.doctors.colFee'), render: (v) => `₹${v}` },
     {
       key: 'status',
-      label: 'Status',
-      render: (v) => <span className={`status-badge ${v === 'Active' ? 'status-active' : 'status-inactive'}`}>{v}</span>,
+      label: t('pg.admin.doctors.colStatus'),
+      render: (v) => <span className={`status-badge ${v === 'Active' ? 'status-active' : 'status-inactive'}`}>{v === 'Active' ? t('common.active') : t('common.inactive')}</span>,
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: t('pg.admin.doctors.colActions'),
       render: (_, row) => (
         <div className="action-icons">
-          <button className="icon-btn" title="Edit" onClick={(e) => { e.stopPropagation(); setEditModal(row); setIsAdd(false); }}>✏️</button>
-          <button className="icon-btn" title="Schedule">📅</button>
-          <button className="icon-btn" title="Delete">🗑️</button>
+          <button className="icon-btn" title={t('common.edit')} onClick={(e) => { e.stopPropagation(); setEditModal(row); setIsAdd(false); }}>✏️</button>
+          <button className="icon-btn" title={t('pg.admin.doctors.schedule')}>📅</button>
+          <button className="icon-btn" title={t('common.delete')}>🗑️</button>
         </div>
       ),
     },
@@ -50,41 +52,41 @@ const DoctorsPage = () => {
   return (
     <div className="page admin-doctors-page">
       <div className="page-header">
-        <h1>Doctors</h1>
-        <Button icon="➕" onClick={() => { setEditModal({ name: '', specialization: '', department: '', experience: 0, fee: 0, qualification: '', email: '', phone: '', availability: [], status: 'Active' }); setIsAdd(true); }}>Add Doctor</Button>
+        <h1>{t('pg.admin.doctors.title')}</h1>
+        <Button icon="➕" onClick={() => { setEditModal({ name: '', specialization: '', department: '', experience: 0, fee: 0, qualification: '', email: '', phone: '', availability: [], status: 'Active' }); setIsAdd(true); }}>{t('pg.admin.doctors.addDoctor')}</Button>
       </div>
 
       <div className="doctors-filters">
-        <Input name="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or specialization..." />
-        <Select name="dept" value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)} placeholder="All Departments" options={departments.map((d) => ({ value: d.name, label: d.name }))} />
-        <Select name="status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} placeholder="All Status" options={[{ value: 'Active', label: 'Active' }, { value: 'Inactive', label: 'Inactive' }]} />
+        <Input name="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('pg.admin.doctors.searchPlaceholder')} />
+        <Select name="dept" value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)} placeholder={t('pg.admin.doctors.allDepartments')} options={departments.map((d) => ({ value: d.name, label: d.name }))} />
+        <Select name="status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} placeholder={t('pg.admin.doctors.allStatus')} options={[{ value: 'Active', label: t('common.active') }, { value: 'Inactive', label: t('common.inactive') }]} />
       </div>
 
       <Card>
-        <DataTable columns={columns} data={filtered} emptyMessage="No doctors found" />
+        <DataTable columns={columns} data={filtered} emptyMessage={t('pg.admin.doctors.emptyDoctors')} />
       </Card>
 
-      <Modal isOpen={!!editModal} onClose={() => { setEditModal(null); setIsAdd(false); }} title={isAdd ? 'Add Doctor' : 'Edit Doctor'} size="lg">
+      <Modal isOpen={!!editModal} onClose={() => { setEditModal(null); setIsAdd(false); }} title={isAdd ? t('pg.admin.doctors.addDoctor') : t('pg.admin.doctors.editDoctor')} size="lg">
         {editModal && (
           <div className="doctor-form">
-            <Input label="Full Name" name="name" value={editModal.name} onChange={(e) => setEditModal((p) => ({ ...p, name: e.target.value }))} />
+            <Input label={t('pg.admin.doctors.fullName')} name="name" value={editModal.name} onChange={(e) => setEditModal((p) => ({ ...p, name: e.target.value }))} />
             <div className="form-row">
-              <Input label="Specialization" name="specialization" value={editModal.specialization} onChange={(e) => setEditModal((p) => ({ ...p, specialization: e.target.value }))} />
-              <Select label="Department" name="department" value={editModal.department} onChange={(e) => setEditModal((p) => ({ ...p, department: e.target.value }))} placeholder="Select" options={departments.map((d) => ({ value: d.name, label: d.name }))} />
+              <Input label={t('pg.admin.doctors.specialization')} name="specialization" value={editModal.specialization} onChange={(e) => setEditModal((p) => ({ ...p, specialization: e.target.value }))} />
+              <Select label={t('pg.admin.doctors.department')} name="department" value={editModal.department} onChange={(e) => setEditModal((p) => ({ ...p, department: e.target.value }))} placeholder={t('pg.admin.doctors.select')} options={departments.map((d) => ({ value: d.name, label: d.name }))} />
             </div>
             <div className="form-row">
-              <Input label="Experience (years)" name="experience" type="number" value={editModal.experience} onChange={(e) => setEditModal((p) => ({ ...p, experience: Number(e.target.value) }))} />
-              <Input label="Consultation Fee (₹)" name="fee" type="number" value={editModal.fee} onChange={(e) => setEditModal((p) => ({ ...p, fee: Number(e.target.value) }))} />
+              <Input label={t('pg.admin.doctors.experience')} name="experience" type="number" value={editModal.experience} onChange={(e) => setEditModal((p) => ({ ...p, experience: Number(e.target.value) }))} />
+              <Input label={t('pg.admin.doctors.fee')} name="fee" type="number" value={editModal.fee} onChange={(e) => setEditModal((p) => ({ ...p, fee: Number(e.target.value) }))} />
             </div>
-            <Input label="Qualification" name="qualification" value={editModal.qualification} onChange={(e) => setEditModal((p) => ({ ...p, qualification: e.target.value }))} />
+            <Input label={t('pg.admin.doctors.qualification')} name="qualification" value={editModal.qualification} onChange={(e) => setEditModal((p) => ({ ...p, qualification: e.target.value }))} />
             <div className="form-row">
-              <Input label="Email" name="email" type="email" value={editModal.email} onChange={(e) => setEditModal((p) => ({ ...p, email: e.target.value }))} />
-              <Input label="Phone" name="phone" value={editModal.phone} onChange={(e) => setEditModal((p) => ({ ...p, phone: e.target.value }))} />
+              <Input label={t('pg.admin.doctors.email')} name="email" type="email" value={editModal.email} onChange={(e) => setEditModal((p) => ({ ...p, email: e.target.value }))} />
+              <Input label={t('pg.admin.doctors.phone')} name="phone" value={editModal.phone} onChange={(e) => setEditModal((p) => ({ ...p, phone: e.target.value }))} />
             </div>
-            <Select label="Status" name="status" value={editModal.status} onChange={(e) => setEditModal((p) => ({ ...p, status: e.target.value }))} options={[{ value: 'Active', label: 'Active' }, { value: 'Inactive', label: 'Inactive' }]} />
+            <Select label={t('pg.admin.doctors.status')} name="status" value={editModal.status} onChange={(e) => setEditModal((p) => ({ ...p, status: e.target.value }))} options={[{ value: 'Active', label: t('common.active') }, { value: 'Inactive', label: t('common.inactive') }]} />
             <div className="user-form-actions">
-              <Button onClick={() => { setEditModal(null); setIsAdd(false); }}>{isAdd ? 'Add Doctor' : 'Save Changes'}</Button>
-              <Button variant="secondary" onClick={() => { setEditModal(null); setIsAdd(false); }}>Cancel</Button>
+              <Button onClick={() => { setEditModal(null); setIsAdd(false); }}>{isAdd ? t('pg.admin.doctors.addDoctor') : t('pg.admin.doctors.saveChanges')}</Button>
+              <Button variant="secondary" onClick={() => { setEditModal(null); setIsAdd(false); }}>{t('common.cancel')}</Button>
             </div>
           </div>
         )}

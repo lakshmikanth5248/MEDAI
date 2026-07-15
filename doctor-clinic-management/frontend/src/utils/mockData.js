@@ -1,15 +1,15 @@
 export const departments = [
-  { id: 1, name: 'Cardiology', icon: '❤️', description: 'Heart and cardiovascular system diagnosis and treatment', doctorCount: 3 },
-  { id: 2, name: 'Neurology', icon: '🧠', description: 'Brain, spinal cord and nervous system disorders', doctorCount: 2 },
-  { id: 3, name: 'Orthopedics', icon: '🦴', description: 'Musculoskeletal system and bone health', doctorCount: 2 },
-  { id: 4, name: 'Pediatrics', icon: '👶', description: 'Medical care for infants, children and adolescents', doctorCount: 2 },
-  { id: 5, name: 'Dermatology', icon: '🔬', description: 'Skin, hair and nail conditions', doctorCount: 1 },
-  { id: 6, name: 'General Medicine', icon: '🩺', description: 'Primary care and general health consultations', doctorCount: 2 },
-  { id: 7, name: 'Ophthalmology', icon: '👁️', description: 'Eye care and vision disorders', doctorCount: 1 },
-  { id: 8, name: 'ENT', icon: '👂', description: 'Ear, nose and throat conditions', doctorCount: 1 },
+  { id: 1, name: 'Cardiology', icon: '❤️', color: '#EF4444', description: 'Heart and cardiovascular system diagnosis and treatment', doctorCount: 3 },
+  { id: 2, name: 'Neurology', icon: '🧠', color: '#8B5CF6', description: 'Brain, spinal cord and nervous system disorders', doctorCount: 2 },
+  { id: 3, name: 'Orthopedics', icon: '🦴', color: '#F97316', description: 'Musculoskeletal system and bone health', doctorCount: 2 },
+  { id: 4, name: 'Pediatrics', icon: '👶', color: '#22C55E', description: 'Medical care for infants, children and adolescents', doctorCount: 2 },
+  { id: 5, name: 'Dermatology', icon: '🔬', color: '#EC4899', description: 'Skin, hair and nail conditions', doctorCount: 1 },
+  { id: 6, name: 'General Medicine', icon: '🩺', color: '#38BDF8', description: 'Primary care and general health consultations', doctorCount: 2 },
+  { id: 7, name: 'Ophthalmology', icon: '👁️', color: '#14B8A6', description: 'Eye care and vision disorders', doctorCount: 1 },
+  { id: 8, name: 'ENT', icon: '👂', color: '#6366F1', description: 'Ear, nose and throat conditions', doctorCount: 1 },
 ];
 
-export const doctors = [
+const rawDoctors = [
   { id: 1, name: 'Dr. Arjun Mehta', departmentId: 1, specialization: 'Interventional Cardiology', experience: 15, fee: 800, availability: 'Mon-Fri 9AM-5PM', rating: 4.8, image: null, education: 'MBBS, MD (Cardiology), DM (Cardiology)' },
   { id: 2, name: 'Dr. Priya Sharma', departmentId: 1, specialization: 'Pediatric Cardiology', experience: 10, fee: 700, availability: 'Mon-Sat 10AM-4PM', rating: 4.6, image: null, education: 'MBBS, MD (Pediatrics), DM (Cardiology)' },
   { id: 3, name: 'Dr. Vikram Patel', departmentId: 2, specialization: 'Neurology & Stroke Management', experience: 18, fee: 1000, availability: 'Tue-Sat 9AM-6PM', rating: 4.9, image: null, education: 'MBBS, MD (Medicine), DM (Neurology)' },
@@ -21,6 +21,16 @@ export const doctors = [
   { id: 9, name: 'Dr. Sanjay Verma', departmentId: 8, specialization: 'ENT & Head Neck Surgery', experience: 16, fee: 700, availability: 'Mon-Fri 9AM-6PM', rating: 4.6, image: null, education: 'MBBS, MS (ENT), DNB (ENT)' },
   { id: 10, name: 'Dr. Meera Joshi', departmentId: 3, specialization: 'Sports Medicine', experience: 7, fee: 650, availability: 'Mon-Sat 11AM-7PM', rating: 4.2, image: null, education: 'MBBS, DNB (Orthopedics), Fellowship (Sports Medicine)' },
 ];
+
+export const doctors = rawDoctors.map((d, i) => ({
+  ...d,
+  doctorId: `DOC-${100001 + i}`,
+  department: departments.find((dep) => dep.id === d.departmentId)?.name || 'General Medicine',
+  phone: `98${(70000000 + i * 111111).toString()}`,
+  address: `${12 + i}, Wellness Lane, ${['Mumbai', 'Pune', 'Delhi', 'Bangalore', 'Kochi', 'Chennai', 'Hyderabad', 'Kolkata', 'Ahmedabad', 'Jaipur'][i % 10]}`,
+  qualification: d.education,
+  licenseNo: `MCI-${100000 + i}`,
+}));
 
 export const patients = [
   { id: 1, patientId: 'PAT-100001', name: 'Rajesh Gupta', email: 'rajesh.g@email.com', phone: '9876543210', gender: 'Male', dob: '1985-06-15', bloodGroup: 'O+', address: '42, Sunshine Apartments, MG Road, Mumbai', registeredDate: '2025-01-10' },
@@ -108,21 +118,23 @@ export const prescriptions = [
   },
 ];
 
-export const medicalStores = [
+const rawMedicalStores = [
   { id: 1, name: 'City Pharmacy', address: '45, MG Road, Mumbai', phone: '022-23456789', email: 'citypharma@email.com' },
   { id: 2, name: 'HealthPlus Medical Store', address: '12, Lake View Complex, Andheri East, Mumbai', phone: '022-34567890', email: 'healthplus@email.com' },
   { id: 3, name: 'MediCare Drugs', address: '8, Green Park, Pune', phone: '020-45678901', email: 'medicare@email.com' },
 ];
 
+export const medicalStores = rawMedicalStores.map((s, i) => ({ ...s, storeCode: `STORE-${100001 + i}` }));
+
 export const users = [
-  { id: 1, name: 'Dr. Arjun Mehta', email: 'arjun.mehta@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-13 08:30 AM' },
-  { id: 2, name: 'Priya Sharma', email: 'priya.sharma@clinic.com', role: 'reception', status: 'active', lastLogin: '2025-07-13 09:00 AM' },
-  { id: 3, name: 'Admin User', email: 'admin@clinic.com', role: 'admin', status: 'active', lastLogin: '2025-07-13 07:45 AM' },
-  { id: 4, name: 'Rajesh Gupta', email: 'rajesh.g@email.com', role: 'patient', status: 'active', lastLogin: '2025-07-12 06:30 PM' },
-  { id: 5, name: 'City Pharmacy', email: 'citypharma@email.com', role: 'medical_store', status: 'active', lastLogin: '2025-07-13 08:00 AM' },
-  { id: 6, name: 'Dr. Vikram Patel', email: 'vikram.patel@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-12 07:15 PM' },
-  { id: 7, name: 'Sneha Reddy', email: 'sneha.reddy@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-13 08:15 AM' },
-  { id: 8, name: 'Reception Desk', email: 'reception@clinic.com', role: 'reception', status: 'active', lastLogin: '2025-07-13 09:00 AM' },
+  { id: 'USR-1001', name: 'Dr. Arjun Mehta', email: 'arjun.mehta@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-13 08:30 AM' },
+  { id: 'USR-1002', name: 'Priya Sharma', email: 'priya.sharma@clinic.com', role: 'reception', status: 'active', lastLogin: '2025-07-13 09:00 AM' },
+  { id: 'USR-1003', name: 'Admin User', email: 'admin@clinic.com', role: 'admin', status: 'active', lastLogin: '2025-07-13 07:45 AM' },
+  { id: 'USR-1004', name: 'Rajesh Gupta', email: 'rajesh.g@email.com', role: 'patient', status: 'active', lastLogin: '2025-07-12 06:30 PM' },
+  { id: 'USR-1005', name: 'City Pharmacy', email: 'citypharma@email.com', role: 'medical_store', status: 'active', lastLogin: '2025-07-13 08:00 AM' },
+  { id: 'USR-1006', name: 'Dr. Vikram Patel', email: 'vikram.patel@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-12 07:15 PM' },
+  { id: 'USR-1007', name: 'Sneha Reddy', email: 'sneha.reddy@clinic.com', role: 'doctor', status: 'active', lastLogin: '2025-07-13 08:15 AM' },
+  { id: 'USR-1008', name: 'Reception Desk', email: 'reception@clinic.com', role: 'reception', status: 'active', lastLogin: '2025-07-13 09:00 AM' },
 ];
 
 export const notifications = [
@@ -203,3 +215,26 @@ export const clinics = [
   { id: 1, name: 'Central Clinic', address: '12 MG Road, Mumbai', phone: '022-12345678', email: 'central@clinic.com', workingHours: '9AM - 6PM', status: 'Active', doctorsCount: 8 },
   { id: 2, name: 'Northside Health', address: '45 North Ave, Pune', phone: '020-98765432', email: 'north@clinic.com', workingHours: '10AM - 5PM', status: 'Active', doctorsCount: 5 },
 ];
+
+export default {
+  departments,
+  doctors,
+  patients,
+  appointments,
+  prescriptions,
+  medicalStores,
+  users,
+  notifications,
+  recentActivities,
+  statsData,
+  medicineInventory,
+  billingRecords,
+  bills,
+  smsLogs,
+  consultations,
+  currentDoctor,
+  currentPatient,
+  currentMedicalStore,
+  admin,
+  clinics,
+};
