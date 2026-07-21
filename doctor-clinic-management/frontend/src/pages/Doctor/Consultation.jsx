@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Input, Textarea } from '../../components/Forms';
-import { appointments, patients } from '../../utils/mockData';
+import { Loader } from '../../components/Loader';
+import * as clinicalApi from '../../services/api/clinical';
+import { getErrorMessage } from '../../services/apiError';
 import { calculateAge } from '../../utils/helpers';
+import { useAuth } from '../../context/AuthContext';
 import './Consultation.css';
 import { useTranslation } from '../../i18n/LanguageContext';
 
@@ -12,15 +15,42 @@ const Consultation = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const appointment = appointments.find((a) => a.id === id) || appointments[0];
-  const patient = patients.find((p) => p.id === appointment?.patientId) || patients[0];
+  const [appointment, setAppointment] = useState(null);
+  const [patient, setPatient] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const [vitals, setVitals] = useState({ bpSystolic: '', bpDiastolic: '', heartRate: '', temperature: '', weight: '', height: '', spo2: '' });
   const [symptoms, setSymptoms] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [tests, setTests] = useState(['']);
   const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setLoadError('');
+      try {
+        const appt = await clinicalApi.getAppointment(id);
+        if (cancelled) return;
+        setAppointment(appt);
+        const pat = await clinicalApi.getPatient(appt.patientId);
+        if (cancelled) return;
+        setPatient(pat);
+      } catch (err) {
+        if (!cancelled) setLoadError(getErrorMessage(err, 'Failed to load appointment'));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [id]);
 
   const handleVitalChange = (field) => (e) => setVitals((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -32,10 +62,68 @@ const Consultation = () => {
     setTests(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/doctor/prescription', { state: { patient, vitals, symptoms, diagnosis, tests, notes } });
+    if (!appointment || !patient || !user?.id) return;
+    setSubmitError('');
+    setSubmitting(true);
+    try {
+      const numericVitals = Object.entries(vitals).reduce((acc, [key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          const num = Number(value);
+          acc[key] = Number.isNaN(num) ? value : num;
+        }
+        return acc;
+      }, {});
+      const cleanTests = tests.map((tst) => tst.trim()).filter(Boolean);
+
+      const consultation = await clinicalApi.createConsultation({
+        appointmentId: appointment.id,
+        doctorId: user.id,
+        patientId: patient.id,
+        vitals: numericVitals,
+        symptoms,
+        diagnosis,
+        tests: cleanTests,
+        notes,
+      });
+
+      navigate('/doctor/prescription', {
+        state: {
+          consultationId: consultation.id,
+          appointmentId: appointment.id,
+          patientId: patient.id,
+          doctorId: user.id,
+          patient,
+          vitals: numericVitals,
+          symptoms,
+          diagnosis,
+          tests: cleanTests,
+          notes,
+        },
+      });
+    } catch (err) {
+      setSubmitError(getErrorMessage(err, 'Failed to save consultation'));
+      setSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="page consultation-page">
+        <Loader size="lg" text={t('common.loading')} />
+      </div>
+    );
+  }
+
+  if (loadError || !appointment || !patient) {
+    return (
+      <div className="page consultation-page">
+        <p className="text-error">{loadError || 'Appointment not found'}</p>
+        <Button variant="secondary" onClick={() => navigate(-1)}>{t('common.back')}</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="page consultation-page">
@@ -43,9 +131,11 @@ const Consultation = () => {
         <button className="back-btn" onClick={() => navigate(-1)}>← {t('common.back')}</button>
         <div className="consult-patient-info">
           <h1>{t('pg.doctor.consultation.title')}</h1>
-          <p className="text-muted">{patient.name} | {calculateAge(patient.dob)} yrs | {patient.gender} | {patient.id}</p>
+          <p className="text-muted">{patient.name} | {calculateAge(patient.dob)} yrs | {patient.gender} | {patient.patientId || patient.id}</p>
         </div>
       </div>
+
+      {submitError && <p className="text-error">{submitError}</p>}
 
       <form onSubmit={handleSubmit}>
         <Card title={t('pg.doctor.consultation.vitals')}>
@@ -85,8 +175,8 @@ const Consultation = () => {
         </Card>
 
         <div className="form-actions">
-          <Button type="submit" size="lg">{t('pg.doctor.consultation.saveContinue')}</Button>
-          <Button type="button" variant="secondary" size="lg" onClick={() => navigate(-1)}>{t('common.cancel')}</Button>
+          <Button type="submit" size="lg" disabled={submitting}>{submitting ? t('common.loading') : t('pg.doctor.consultation.saveContinue')}</Button>
+          <Button type="button" variant="secondary" size="lg" onClick={() => navigate(-1)} disabled={submitting}>{t('common.cancel')}</Button>
         </div>
       </form>
     </div>

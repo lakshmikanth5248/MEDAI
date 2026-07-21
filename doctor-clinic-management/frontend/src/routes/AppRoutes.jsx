@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { PageLoader } from '../components/Loader';
 import DashboardLayout from '../components/DashboardLayout/DashboardLayout';
 import Home from '../pages/Home/Home';
 import Login from '../pages/Login/Login';
@@ -26,6 +27,7 @@ import RegisterPatient from '../pages/Reception/RegisterPatient';
 import PatientsList from '../pages/Reception/PatientsList';
 import ReceptionAppointments from '../pages/Reception/Appointments';
 import Billing from '../pages/Reception/Billing';
+import ReceptionPrescriptions from '../pages/Reception/Prescriptions';
 
 import DoctorDashboard from '../pages/Doctor/Dashboard';
 import TodayAppointments from '../pages/Doctor/TodayAppointments';
@@ -58,7 +60,16 @@ const ROLE_PATH_MAP = {
 };
 
 function ProtectedRoute() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+
+  // AuthContext is still rehydrating the session from localStorage on this
+  // first render (e.g. after a hard refresh) - `isAuthenticated` is falsely
+  // `false` until that finishes. Redirecting here would race the rehydration
+  // and bounce an already-logged-in user through /login and back, leaving
+  // the app on the wrong page (or blank, if it happens more than once).
+  if (loading) {
+    return <PageLoader />;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -75,7 +86,11 @@ function ProtectedRoute() {
 }
 
 function PublicOnlyRoute() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   if (isAuthenticated && user) {
     const userPath = ROLE_PATH_MAP[user.role];
@@ -115,6 +130,7 @@ export default function AppRoutes() {
           <Route path="/reception/patients" element={<PatientsList />} />
           <Route path="/reception/appointments" element={<ReceptionAppointments />} />
           <Route path="/reception/billing" element={<Billing />} />
+          <Route path="/reception/prescriptions" element={<ReceptionPrescriptions />} />
           <Route path="/reception/profile" element={<SharedProfile />} />
           <Route path="/reception/notifications" element={<Notifications />} />
 

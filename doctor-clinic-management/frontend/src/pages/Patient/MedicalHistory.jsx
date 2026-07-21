@@ -1,24 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Select } from '../../components/Forms';
-import { appointments, prescriptions, consultations, currentPatient, doctors } from '../../utils/mockData';
+import { PageLoader } from '../../components/Loader/Loader';
+import * as clinicalApi from '../../services/api/clinical';
+import { getErrorMessage } from '../../services/apiError';
 import { formatDate, getStatusBadgeClass } from '../../utils/helpers';
+import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './MedicalHistory.css';
 
 const MedicalHistory = () => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const patientId = user?.id;
   const [filterType, setFilterType] = useState('all');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [patientAppts, setPatientAppts] = useState([]);
+  const [patientConsultations, setPatientConsultations] = useState([]);
+  const [patientPrescriptions, setPatientPrescriptions] = useState([]);
 
-  const patientAppts = appointments
-    .filter((a) => a.patientId === currentPatient.id)
-    .map((a) => ({ ...a, doctorName: doctors.find((d) => d.id === a.doctorId)?.name || 'Unknown' }));
-  const patientConsultations = consultations
-    .filter((c) => c.patientId === currentPatient.id)
-    .map((c) => ({ ...c, doctorName: doctors.find((d) => d.id === c.doctorId)?.name || 'Unknown' }));
-  const patientPrescriptions = prescriptions
-    .filter((p) => p.patientId === currentPatient.id)
-    .map((p) => ({ ...p, doctorName: doctors.find((d) => d.id === p.doctorId)?.name || 'Unknown' }));
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!patientId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const [timeline, doctors] = await Promise.all([
+          clinicalApi.getPatientTimeline(patientId),
+          clinicalApi.getDoctors(),
+        ]);
+        if (cancelled) return;
+        const doctorName = (doctorId) => doctors.find((d) => d.id === doctorId)?.name || 'Unknown';
+        setPatientAppts((timeline.appointments || []).map((a) => ({ ...a, doctorName: doctorName(a.doctorId) })));
+        setPatientConsultations((timeline.consultations || []).map((c) => ({ ...c, doctorName: doctorName(c.doctorId) })));
+        setPatientPrescriptions((timeline.prescriptions || []).map((p) => ({ ...p, doctorName: doctorName(p.doctorId) })));
+      } catch (err) {
+        if (!cancelled) setError(getErrorMessage(err, 'Failed to load medical history'));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [patientId]);
 
   const timeline = [
     ...patientAppts.map((a) => ({ ...a, type: 'appointment', date: a.date })),
@@ -39,41 +66,52 @@ const MedicalHistory = () => {
   const completedVisits = patientAppts.filter((a) => a.status?.toLowerCase() === 'completed').length;
   const lastVisit = patientAppts.filter((a) => a.status?.toLowerCase() === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
+  const getTypeLabel = (type) =>
+    type === 'appointment'
+      ? t('pg.patient.medicalHistory.typeAppointment')
+      : type === 'consultation'
+        ? t('pg.patient.medicalHistory.typeConsultation')
+        : t('pg.patient.medicalHistory.typePrescription');
+
+  if (loading) return <PageLoader />;
+
   return (
     <div className="page medical-history">
       <div className="page-header">
-        <h1>Medical History</h1>
+        <h1>{t('pg.patient.medicalHistory.title')}</h1>
       </div>
+
+      {error && <p className="text-danger">{error}</p>}
 
       <div className="history-stats">
         <div className="history-stat-card">
           <span className="hsc-value">{completedVisits}</span>
-          <span className="hsc-label">Total Visits</span>
+          <span className="hsc-label">{t('pg.patient.medicalHistory.statTotalVisits')}</span>
         </div>
         <div className="history-stat-card">
-          <span className="hsc-value">{lastVisit ? formatDate(lastVisit.date) : 'N/A'}</span>
-          <span className="hsc-label">Last Visit</span>
+          <span className="hsc-value">{lastVisit ? formatDate(lastVisit.date) : t('pg.patient.medicalHistory.na')}</span>
+          <span className="hsc-label">{t('pg.patient.medicalHistory.statLastVisit')}</span>
         </div>
         <div className="history-stat-card">
           <span className="hsc-value">{patientConsultations.length}</span>
-          <span className="hsc-label">Consultations</span>
+          <span className="hsc-label">{t('pg.patient.medicalHistory.statConsultations')}</span>
         </div>
         <div className="history-stat-card">
           <span className="hsc-value">{patientPrescriptions.length}</span>
-          <span className="hsc-label">Prescriptions</span>
+          <span className="hsc-label">{t('pg.patient.medicalHistory.statPrescriptions')}</span>
         </div>
       </div>
 
       <Card>
         <div className="history-filters">
           <Select name="type" value={filterType} onChange={(e) => setFilterType(e.target.value)} options={[
-            { value: 'all', label: 'All Events' },
-            { value: 'appointment', label: 'Appointments' },
-            { value: 'consultation', label: 'Consultations' },
-            { value: 'prescription', label: 'Prescriptions' },
+            { value: 'all', label: t('pg.patient.medicalHistory.optAllEvents') },
+            { value: 'appointment', label: t('pg.patient.medicalHistory.optAppointments') },
+            { value: 'consultation', label: t('pg.patient.medicalHistory.optConsultations') },
+            { value: 'prescription', label: t('pg.patient.medicalHistory.optPrescriptions') },
           ]} />
-          <input type="date" className="form-input" value={dateRange.from} onChange={(e) => setDateRange((p) => ({ ...p, from: e.target.value }))} placeholder="From" style={{ maxWidth: 180 }} />
-          <input type="date" className="form-input" value={dateRange.to} onChange={(e) => setDateRange((p) => ({ ...p, to: e.target.value }))} placeholder="To" style={{ maxWidth: 180 }} />
+          <input type="date" className="form-input" value={dateRange.from} onChange={(e) => setDateRange((p) => ({ ...p, from: e.target.value }))} placeholder={t('pg.patient.medicalHistory.from')} style={{ maxWidth: 180 }} />
+          <input type="date" className="form-input" value={dateRange.to} onChange={(e) => setDateRange((p) => ({ ...p, to: e.target.value }))} placeholder={t('pg.patient.medicalHistory.to')} style={{ maxWidth: 180 }} />
         </div>
       </Card>
 
@@ -86,7 +124,7 @@ const MedicalHistory = () => {
             <div className="timeline-content">
               <div className="timeline-header">
                 <span className="timeline-date">{formatDate(item.date)}</span>
-                <span className={`timeline-type-badge ${item.type}`}>{item.type}</span>
+                <span className={`timeline-type-badge ${item.type}`}>{getTypeLabel(item.type)}</span>
               </div>
               {item.type === 'appointment' && (
                 <div>
@@ -104,16 +142,16 @@ const MedicalHistory = () => {
                 <div>
                   <p><strong>{item.doctorName}</strong></p>
                   {item.notes && <p className="text-muted">{item.notes}</p>}
-                  <p>{item.medicines.map((m) => m.name).join(', ')}</p>
+                  <p>{(item.medicines || []).map((m) => m.name).join(', ')}</p>
                 </div>
               )}
               <div className="timeline-attachments">
-                <Button variant="link" size="sm">View Details →</Button>
+                <Button variant="link" size="sm">{t('pg.patient.medicalHistory.viewDetails')} →</Button>
               </div>
             </div>
           </div>
         ))}
-        {filtered.length === 0 && <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>No medical history found for the selected filters.</p>}
+        {filtered.length === 0 && <p className="text-muted" style={{ textAlign: 'center', padding: '2rem' }}>{t('pg.patient.medicalHistory.empty')}</p>}
       </div>
     </div>
   );

@@ -32,6 +32,11 @@
   font-size: var(--font-size-lg);
 }
 
+.sidebar-brand-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
 .sidebar-brand-text {
   color: white;
   font-size: var(--font-size-lg);

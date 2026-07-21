@@ -1,77 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { Input, Select, Textarea } from '../../components/Forms';
-import { medicalStores, currentDoctor } from '../../utils/mockData';
-import { generatePrescriptionId, calculateAge, getCurrentDate } from '../../utils/helpers';
+import { Loader } from '../../components/Loader';
+import * as clinicalApi from '../../services/api/clinical';
+import * as prescriptionsApi from '../../services/api/prescriptions';
+import * as pharmacyApi from '../../services/api/pharmacy';
+import { getErrorMessage } from '../../services/apiError';
+import { calculateAge } from '../../utils/helpers';
 import { printDocument, escapeHtmlValue as esc } from '../../utils/print';
+import { buildPrescriptionPrintHtml } from '../../services/prescriptionStore';
+import { useAuth } from '../../context/AuthContext';
+import { resolveProfile } from '../../utils/profile';
 import './Prescription.css';
 import { useTranslation } from '../../i18n/LanguageContext';
 
 const Prescription = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const consultData = location.state || {};
-  const patient = consultData.patient;
+  const doctor = resolveProfile(user) || {};
+
+  const [doctorPatients, setDoctorPatients] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      setLoadError('');
+      try {
+        const [patients, storeList] = await Promise.all([
+          clinicalApi.getDoctorPatients(user.id),
+          pharmacyApi.getStores().catch(() => []),
+        ]);
+        if (cancelled) return;
+        // The patient coming from a just-completed consultation may not yet
+        // appear in the doctor's derived patient list on the very first
+        // render - make sure they're selectable regardless.
+        let list = patients;
+        if (consultData.patient && !list.some((p) => String(p.id) === String(consultData.patient.id))) {
+          list = [consultData.patient, ...list];
+        }
+        setDoctorPatients(list);
+        setStores(storeList);
+      } catch (err) {
+        if (!cancelled) setLoadError(getErrorMessage(err, 'Failed to load patients'));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const [selectedPatientId, setSelectedPatientId] = useState(String(consultData.patientId || consultData.patient?.id || ''));
+  const patient = doctorPatients.find((p) => String(p.id) === String(selectedPatientId)) || consultData.patient || null;
 
   const [medicines, setMedicines] = useState([
     { name: '', dosage: '1-0-0', frequency: 'Once daily', duration: 7, durationType: 'days', quantity: 7, instructions: '' },
   ]);
-  const [additionalNotes, setAdditionalNotes] = useState('');
+  const [additionalNotes, setAdditionalNotes] = useState(consultData.diagnosis ? `Diagnosis: ${consultData.diagnosis}` : (consultData.notes || ''));
   const [selectedStore, setSelectedStore] = useState('');
   const [success, setSuccess] = useState(false);
-  const [prxId, setPrxId] = useState('');
+  const [createdPrescription, setCreatedPrescription] = useState(null);
 
-  const buildPrescriptionHtml = () => {
-    const rows = medicines
-      .map(
-        (m, i) =>
-          `<tr><td>${i + 1}</td><td>${esc(m.name)}</td><td>${esc(m.dosage)}</td><td>${esc(m.frequency)}</td><td>${esc(m.duration)} ${esc(m.durationType)}</td><td>${esc(m.instructions || '—')}</td></tr>`
-      )
-      .join('');
-    return `
-      <div class="doc-header">
-        <h2>ClinicManager</h2>
-        <p>123 Healthcare Avenue, Medical District, Mumbai</p>
-        <p>Phone: +91-22-12345678 | Email: info@clinicmanager.com</p>
-      </div>
-      <div class="divider"></div>
-      <div class="title">${t('pg.doctor.prescription.printTitle')}</div>
-      <div class="meta">
-        <div><strong>${t('pg.doctor.prescription.printPrescriptionId')}:</strong> ${esc(prxId)}</div>
-        <div><strong>${t('pg.doctor.prescription.printDate')}:</strong> ${esc(getCurrentDate())}</div>
-      </div>
-      <div class="divider"></div>
-      <div class="section">
-        <h4>${t('pg.doctor.prescription.patientInfo')}</h4>
-        <div class="row"><span class="k">${t('pg.doctor.prescription.name')}:</span><span>${esc(patient?.name || t('pg.doctor.prescription.notAvailable'))}</span></div>
-        <div class="row"><span class="k">${t('pg.doctor.prescription.ageGender')}:</span><span>${esc(patient ? `${calculateAge(patient.dob)} yrs / ${patient.gender}` : t('pg.doctor.prescription.notAvailable'))}</span></div>
-        <div class="row"><span class="k">${t('pg.doctor.prescription.patientId')}:</span><span>${esc(patient?.id || t('pg.doctor.prescription.notAvailable'))}</span></div>
-      </div>
-      <div class="section">
-        <h4>${t('pg.doctor.prescription.doctor')}</h4>
-        <div class="row"><span class="k">${t('pg.doctor.prescription.name')}:</span><span>${esc(currentDoctor.name)}</span></div>
-        <div class="row"><span class="k">${t('pg.doctor.prescription.specialization')}:</span><span>${esc(currentDoctor.specialization)}</span></div>
-      </div>
-      ${consultData.diagnosis ? `<div class="section"><h4>${t('pg.doctor.prescription.diagnosis')}</h4><p>${esc(consultData.diagnosis)}</p></div>` : ''}
-      <div class="section">
-        <h4>${t('pg.doctor.prescription.prescribedMedicines')}</h4>
-        <table>
-          <thead><tr><th>#</th><th>${t('pg.doctor.prescription.colMedicine')}</th><th>${t('pg.doctor.prescription.colDosage')}</th><th>${t('pg.doctor.prescription.colFrequency')}</th><th>${t('pg.doctor.prescription.colDuration')}</th><th>${t('pg.doctor.prescription.colInstructions')}</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      ${additionalNotes ? `<div class="section"><h4>${t('pg.doctor.prescription.additionalNotes')}</h4><p>${esc(additionalNotes)}</p></div>` : ''}
-      ${selectedStore ? `<div class="section"><h4>${t('pg.doctor.prescription.medicalStore')}</h4><p>${esc(selectedStore)}</p></div>` : ''}
-      <div class="footer">
-        <p class="note">${t('pg.doctor.prescription.computerGenerated')}</p>
-        <div class="sig"><div class="sig-line"></div><p>${t('pg.doctor.prescription.doctorSignature')}</p></div>
-      </div>`;
+  const handlePrint = () => {
+    if (!createdPrescription) return;
+    printDocument(t('pg.patient.prescriptions.htmlTitle'), buildPrescriptionPrintHtml(createdPrescription, t, esc));
   };
-
-  const handlePrint = () => printDocument(t('pg.doctor.prescription.printTitle'), buildPrescriptionHtml());
 
   const addMedicine = () => {
     setMedicines([...medicines, { name: '', dosage: '1-0-0', frequency: 'Once daily', duration: 7, durationType: 'days', quantity: 7, instructions: '' }]);
@@ -87,23 +93,64 @@ const Prescription = () => {
     setMedicines(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const id = generatePrescriptionId();
-    setPrxId(id);
-    setSuccess(true);
+    if (!patient || !user?.id) return;
+    setSubmitError('');
+    setSubmitting(true);
+    try {
+      const payload = {
+        patientId: patient.id,
+        doctorId: user.id,
+        appointmentId: consultData.appointmentId,
+        consultationId: consultData.consultationId,
+        notes: additionalNotes,
+        medicines: medicines.map((m) => ({
+          name: m.name,
+          dosage: m.dosage,
+          frequency: m.frequency,
+          duration: Number(m.duration) || 0,
+          durationType: m.durationType,
+          quantity: Number(m.quantity) || 1,
+          instructions: m.instructions,
+        })),
+      };
+      const created = await prescriptionsApi.createPrescription(payload);
+      const storeLabel = stores.find((s) => String(s.id) === String(selectedStore))?.name || selectedStore || '';
+      setCreatedPrescription({
+        ...created,
+        id: created.rxId || created.id,
+        patientName: patient.name,
+        patientId: patient.patientId || patient.id,
+        doctorName: doctor.name,
+        store: storeLabel,
+      });
+      setSuccess(true);
+    } catch (err) {
+      setSubmitError(getErrorMessage(err, 'Failed to create prescription'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  if (success) {
+  if (loading) {
+    return (
+      <div className="page prescription-page">
+        <Loader size="lg" text={t('common.loading')} />
+      </div>
+    );
+  }
+
+  if (success && createdPrescription) {
     return (
       <div className="page prescription-page">
         <div className="success-alert">
           <div className="success-icon">✅</div>
           <h2>{t('pg.doctor.prescription.createdSuccess')}</h2>
-          <p className="patient-id-display">{t('pg.doctor.prescription.printPrescriptionId')}: <strong>{prxId}</strong></p>
+          <p className="patient-id-display">{t('pg.doctor.prescription.printPrescriptionId')}: <strong>{createdPrescription.id}</strong></p>
           <div className="success-actions">
             <Button onClick={handlePrint}>🖨️ {t('pg.doctor.prescription.printPrescription')}</Button>
-            <Button variant="outline" onClick={() => setSuccess(false)}>{t('pg.doctor.prescription.createAnother')}</Button>
+            <Button variant="outline" onClick={() => { setSuccess(false); setCreatedPrescription(null); }}>{t('pg.doctor.prescription.createAnother')}</Button>
             <Button variant="secondary" onClick={() => navigate('/doctor/dashboard')}>{t('pg.doctor.prescription.goToDashboard')}</Button>
           </div>
         </div>
@@ -120,12 +167,26 @@ const Prescription = () => {
         <h1>{t('pg.doctor.prescription.createPrescription')}</h1>
       </div>
 
+      {(loadError || submitError) && <p className="text-error">{loadError || submitError}</p>}
+
+      <Card title={t('pg.doctor.prescription.patient')}>
+        <Select
+          label={t('pg.doctor.prescription.patient')}
+          name="patientSelect"
+          value={selectedPatientId}
+          onChange={(e) => setSelectedPatientId(e.target.value)}
+          placeholder={t('pg.doctor.prescription.patient')}
+          options={doctorPatients.map((p) => ({ value: p.id, label: `${p.name} (${p.patientId || p.id})` }))}
+          required
+        />
+      </Card>
+
       {patient && (
         <Card>
           <div className="prx-patient-header">
             <div><label>{t('pg.doctor.prescription.patient')}</label><span>{patient.name}</span></div>
             <div><label>{t('pg.doctor.prescription.ageGender')}</label><span>{calculateAge(patient.dob)} yrs / {patient.gender}</span></div>
-            <div><label>{t('pg.doctor.prescription.patientId')}</label><span>{patient.id}</span></div>
+            <div><label>{t('pg.doctor.prescription.patientId')}</label><span>{patient.patientId || patient.id}</span></div>
           </div>
         </Card>
       )}
@@ -165,12 +226,12 @@ const Prescription = () => {
 
         <Card>
           <Textarea label={t('pg.doctor.prescription.additionalNotes')} name="notes" value={additionalNotes} onChange={(e) => setAdditionalNotes(e.target.value)} placeholder={t('pg.doctor.prescription.additionalNotesPlaceholder')} rows={3} />
-          <Select label={t('pg.doctor.prescription.selectMedicalStore')} name="store" value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} placeholder={t('pg.doctor.prescription.choosePharmacy')} options={medicalStores.map((s) => ({ value: s.name, label: `${s.name} - ${s.address}` }))} />
+          <Select label={t('pg.doctor.prescription.selectMedicalStore')} name="store" value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} placeholder={t('pg.doctor.prescription.choosePharmacy')} options={stores.map((s) => ({ value: s.id, label: `${s.name} - ${s.address || ''}` }))} />
         </Card>
 
         <div className="form-actions">
-          <Button type="submit" size="lg">{t('pg.doctor.prescription.createPrescription')}</Button>
-          <Button type="button" variant="secondary" size="lg" onClick={() => navigate(-1)}>{t('common.cancel')}</Button>
+          <Button type="submit" size="lg" disabled={submitting || !patient}>{submitting ? t('common.loading') : t('pg.doctor.prescription.createPrescription')}</Button>
+          <Button type="button" variant="secondary" size="lg" onClick={() => navigate(-1)} disabled={submitting}>{t('common.cancel')}</Button>
         </div>
       </form>
     </div>

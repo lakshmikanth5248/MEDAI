@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { HospitalIcon } from '../Brand/Brand';
 import './Sidebar.css';
 
 // labelKey maps each menu entry to a translation key under `sidebar.*`.
@@ -9,6 +10,8 @@ const MENU_CONFIG = {
     { path: '/admin/dashboard', labelKey: 'sidebar.dashboard', icon: '📊' },
     { path: '/admin/users', labelKey: 'sidebar.users', icon: '👥' },
     { path: '/admin/doctors', labelKey: 'sidebar.doctors', icon: '👨‍⚕️' },
+    { path: '/admin/medical-stores', labelKey: 'sidebar.medicalStores', icon: '💊' },
+    { path: '/admin/reception-staff', labelKey: 'sidebar.receptionStaff', icon: '📞' },
     { path: '/admin/departments', labelKey: 'sidebar.departments', icon: '🏥' },
     { path: '/admin/reports', labelKey: 'sidebar.reports', icon: '📈' },
     { path: '/admin/sms-logs', labelKey: 'sidebar.smsLogs', icon: '✉️' },
@@ -21,7 +24,7 @@ const MENU_CONFIG = {
     { path: '/reception/register-patient', labelKey: 'sidebar.registerPatient', icon: '📝' },
     { path: '/reception/patients', labelKey: 'sidebar.patients', icon: '👥' },
     { path: '/reception/appointments', labelKey: 'sidebar.appointments', icon: '📅' },
-    { path: '/reception/billing', labelKey: 'sidebar.billing', icon: '💰' },
+    { path: '/reception/prescriptions', labelKey: 'sidebar.prescriptions', icon: '💊' },
     { path: '/reception/profile', labelKey: 'sidebar.profile', icon: '⚙️' },
     { path: '/reception/notifications', labelKey: 'sidebar.notifications', icon: '🔔' },
   ],
@@ -39,8 +42,6 @@ const MENU_CONFIG = {
     { path: '/patient/departments', labelKey: 'sidebar.departments', icon: '🏥' },
     { path: '/patient/doctors', labelKey: 'sidebar.doctors', icon: '👨‍⚕️' },
     { path: '/patient/book-appointment', labelKey: 'sidebar.bookAppointment', icon: '📅' },
-    { path: '/patient/my-appointments', labelKey: 'sidebar.myAppointments', icon: '📋' },
-    { path: '/patient/prescriptions', labelKey: 'sidebar.prescriptions', icon: '💊' },
     { path: '/patient/medical-history', labelKey: 'sidebar.medicalHistory', icon: '📄' },
     { path: '/patient/profile', labelKey: 'sidebar.profile', icon: '⚙️' },
     { path: '/patient/notifications', labelKey: 'sidebar.notifications', icon: '🔔' },
@@ -63,7 +64,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="sidebar-brand-icon">+C</div>
+        <div className="sidebar-brand-icon"><HospitalIcon /></div>
         <span className="sidebar-brand-text">ClinicManager</span>
       </div>
       <nav className="sidebar-nav">

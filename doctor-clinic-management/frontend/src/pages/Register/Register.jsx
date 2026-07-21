@@ -3,14 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../i18n/LanguageContext';
 import Input from '../../components/Forms/Input';
+import { HospitalIcon } from '../../components/Brand/Brand';
 import './Register.css';
 
 const ROLES = [
   { key: 'patient', labelKey: 'role.patient' },
-  { key: 'reception', labelKey: 'role.reception' },
-  { key: 'doctor', labelKey: 'role.doctor' },
-  { key: 'medical_store', labelKey: 'role.medical_store' },
-  { key: 'admin', labelKey: 'role.admin' },
 ];
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -88,7 +85,7 @@ export default function Register() {
         <div className="register-illustration-bg" />
         <div className="register-illustration-content">
           <div className="register-brand">
-            <span className="register-brand-icon">+C</span>
+            <span className="register-brand-icon"><HospitalIcon /></span>
             <span className="register-brand-name">ClinicManager</span>
           </div>
           <div className="register-illustration-icon">📝</div>
@@ -102,22 +99,29 @@ export default function Register() {
       <div className="register-form-container">
         <div className="register-form-wrapper">
           <div className="register-form-header">
-            <h2 className="register-form-title">{t('register.title')}</h2>
-            <p className="register-form-subtitle">{t('register.subtitle')}</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <h2 className="register-form-title">{t('register.title')}</h2>
+                <p className="register-form-subtitle">{t('register.subtitle')}</p>
+              </div>
+              <Link to="/" className="register-back-btn" title={t('register.back')}>← {t('register.back')}</Link>
+            </div>
           </div>
 
-          <div className="register-role-tabs">
-            {ROLES.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                className={`register-role-tab${role === r.key ? ' active' : ''}`}
-                onClick={() => { setRole(r.key); setError(''); setFieldErrors({}); }}
-              >
-                {t(r.labelKey)}
-              </button>
-            ))}
-          </div>
+          {ROLES.length > 1 && (
+            <div className="register-role-tabs">
+              {ROLES.map((r) => (
+                <button
+                  key={r.key}
+                  type="button"
+                  className={`register-role-tab${role === r.key ? ' active' : ''}`}
+                  onClick={() => { setRole(r.key); setError(''); setFieldErrors({}); }}
+                >
+                  {t(r.labelKey)}
+                </button>
+              ))}
+            </div>
+          )}
 
           {error && <div className="register-error">{error}</div>}
 

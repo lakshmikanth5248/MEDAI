@@ -61,6 +61,11 @@
   font-size: 18px;
 }
 
+.register-brand-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
 .register-brand-name {
   color: white;
   font-size: 22px;
@@ -217,4 +222,25 @@
     grid-template-columns: 1fr;
     gap: 0;
   }
+}
+
+.register-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.register-back-btn:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  color: #1e293b;
 }

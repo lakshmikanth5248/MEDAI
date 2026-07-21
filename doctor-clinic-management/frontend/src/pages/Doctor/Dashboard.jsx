@@ -1,37 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { StatCard, Card } from '../../components/Cards';
 import { Button } from '../../components/Buttons';
 import { DataTable } from '../../components/Tables';
-import { currentDoctor, appointments, patients, prescriptions } from '../../utils/mockData';
-import { getStatusBadgeClass, getCurrentDate, getCurrentTime } from '../../utils/helpers';
+import * as clinicalApi from '../../services/api/clinical';
+import * as prescriptionsApi from '../../services/api/prescriptions';
+import { getErrorMessage } from '../../services/apiError';
+import { getStatusBadgeClass, getCurrentTime } from '../../utils/helpers';
+import { useAuth } from '../../context/AuthContext';
+import { resolveProfile } from '../../utils/profile';
 import './Dashboard.css';
 import { useTranslation } from '../../i18n/LanguageContext';
 
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const profile = resolveProfile(user);
+  const doctorId = profile?.doctorId || user?.id;
+  const doctorName = profile?.name || user?.name || '';
   const [time, setTime] = useState(getCurrentTime());
 
-  React.useEffect(() => {
+  const [todayAppts, setTodayAppts] = useState([]);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [todayPrescriptions, setTodayPrescriptions] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
     const timer = setInterval(() => setTime(getCurrentTime()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  const todayDate = '2025-07-14';
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
 
-  const todayAppts = appointments
-    .filter((a) => a.date === todayDate && a.doctorId === currentDoctor.id)
-    .map((a) => ({
-      ...a,
-      patientName: patients.find((p) => p.id === a.patientId)?.name || 'Unknown',
-    }));
+    const load = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [appts, doctorPatients] = await Promise.all([
+          clinicalApi.getTodayAppointments({ doctorId: user.id }),
+          clinicalApi.getDoctorPatients(user.id),
+        ]);
+        if (cancelled) return;
+
+        const patientNameById = new Map(doctorPatients.map((p) => [p.id, p.name]));
+        const apptsWithNames = appts.map((a) => ({
+          ...a,
+          patientName: patientNameById.get(a.patientId) || 'Unknown',
+        }));
+        setTodayAppts(apptsWithNames);
+        setTotalPatients(doctorPatients.length);
+
+        const todayISO = new Date().toLocaleDateString('en-CA');
+        const allPrx = await prescriptionsApi.getPrescriptions({ doctorId: user.id });
+        if (cancelled) return;
+        setTodayPrescriptions(allPrx.filter((p) => p.date === todayISO).length);
+      } catch (err) {
+        if (!cancelled) setError(getErrorMessage(err, 'Failed to load dashboard data'));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const pendingConsultations = todayAppts.filter((a) => ['scheduled', 'confirmed', 'arrived'].includes(a.status?.toLowerCase()));
-
-  const totalPatients = [...new Set(appointments.filter((a) => a.doctorId === currentDoctor.id).map((a) => a.patientId))].length;
-
-  const todayPrescriptions = prescriptions.filter((p) => p.doctorId === currentDoctor.id && p.date === todayDate).length;
 
   const columns = [
     { key: 'time', label: t('pg.doctor.dashboard.colTime'), render: (v) => <span className="appt-time">{v}</span> },
@@ -52,10 +92,13 @@ const Dashboard = () => {
     <div className="page doctor-dashboard">
       <div className="page-header">
         <div>
-          <h1>{t('pg.doctor.dashboard.greeting')} {greeting}, {currentDoctor.name}</h1>
-          <p className="text-muted">{currentDoctor.specialization} | {getCurrentDate()} | {time}</p>
+          <h1>{t('pg.doctor.dashboard.greeting')} {greeting}, {doctorName}</h1>
+          <p className="text-muted">{(profile?.specialization && profile?.department) ? `${profile.specialization} | ${profile.department}` : (profile?.specialization || profile?.department || '')} | {profile?.doctorId || doctorId}</p>
+          <p className="text-muted">{profile?.email}{profile?.phone ? ` | ${profile.phone}` : ''}</p>
         </div>
       </div>
+
+      {error && <p className="text-error">{error}</p>}
 
       <div className="stats-row">
         <StatCard title={t('sidebar.todayAppointments')} value={todayAppts.length} icon="📅" color="#38BDF8" />
@@ -71,7 +114,7 @@ const Dashboard = () => {
       </div>
 
       <Card title={t('pg.doctor.dashboard.todaySchedule')} subtitle={`${pendingConsultations.length} ${t('pg.doctor.dashboard.pending')}`}>
-        <DataTable columns={columns} data={todayAppts} onRowClick={(row) => navigate(`/doctor/consultation/${row.id}`)} />
+        <DataTable columns={columns} data={todayAppts} loading={loading} onRowClick={(row) => navigate(`/doctor/consultation/${row.id}`)} />
       </Card>
     </div>
   );

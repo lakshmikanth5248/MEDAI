@@ -27,3 +27,19 @@
 .health-indicator { width: 10px; height: 10px; border-radius: 50%; }
 .health-label { flex: 1; font-size: var(--font-size-sm); }
 .health-value { font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); }
+
+.staff-register-hint { margin: 0 0 var(--spacing-md); font-size: var(--font-size-sm); }
+.staff-register-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-md); }
+@media (max-width: 900px) { .staff-register-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .staff-register-grid { grid-template-columns: 1fr; } }
+.staff-register-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-sm); padding: var(--spacing-lg); border: 1px solid var(--color-gray-200); border-radius: var(--radius-md); background: var(--color-white); cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-dark-blue); transition: all 0.15s ease; }
+.staff-register-btn:hover { border-color: var(--color-sky-blue); background: var(--color-gray-50); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.staff-register-icon { font-size: 28px; line-height: 1; }
+.staff-form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.staff-form-actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); margin-top: var(--spacing-sm); }
+.staff-saved-msg { text-align: center; padding: var(--spacing-md); color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.staff-creds { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.cred-row { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-md); background: var(--color-gray-50); border-radius: var(--radius-md); border: 1px dashed var(--color-gray-200); }
+.cred-row strong { font-family: monospace; font-size: var(--font-size-md); color: var(--color-dark-blue); }
+.cred-note { margin: 0; font-size: var(--font-size-xs); color: var(--color-gray-500); }
+

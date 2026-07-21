@@ -14,6 +14,8 @@ const BASE_STYLES = `
   .doc-header { text-align: center; margin-bottom: 10px; }
   .doc-header h2 { font-size: 24px; margin: 0; }
   .doc-header p { margin: 2px 0; font-size: 12px; color: #555; }
+  .doc-brand { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .doc-brand svg { vertical-align: middle; }
   .divider { border-top: 2px solid #333; margin: 12px 0; }
   .title { text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 4px; color: #1a365d; margin: 8px 0; }
   .meta { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
@@ -29,14 +31,10 @@ const BASE_STYLES = `
   .sig .sig-line { width: 200px; border-top: 1px solid #000; margin-bottom: 4px; }
   .sig p { margin: 0; font-size: 12px; color: #555; }
   .note { font-size: 11px; color: #888; }
+  @media print { body { padding: 20px; } }
 `;
 
 export function printDocument(title, bodyHtml) {
-  const win = window.open('', '_blank', 'width=800,height=600');
-  if (!win) {
-    alert('Please allow pop-ups in your browser to enable printing.');
-    return;
-  }
   const doc = `<!DOCTYPE html>
 <html>
   <head>
@@ -46,13 +44,28 @@ export function printDocument(title, bodyHtml) {
   </head>
   <body>${bodyHtml}</body>
 </html>`;
-  win.document.open();
-  win.document.write(doc);
-  win.document.close();
-  win.focus();
-  setTimeout(() => {
-    win.print();
-  }, 350);
+
+  // Self-contained Blob URL opens reliably in a new tab even when
+  // blank window.open targets are blocked, and supports "Save as PDF".
+  const blob = new Blob([doc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (win) {
+    const trigger = () => { try { win.focus(); win.print(); } catch { /* noop */ } };
+    if (win.document.readyState === 'complete') setTimeout(trigger, 300);
+    else win.onload = () => setTimeout(trigger, 300);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return;
+  }
+
+  // Last resort: trigger a direct download of the HTML file.
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title.replace(/\s+/g, '_')}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 export function escapeHtmlValue(value) {

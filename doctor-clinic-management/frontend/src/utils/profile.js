@@ -1,72 +1,27 @@
-import { doctors, patients, users, medicalStores } from './mockData';
-
+// AuthContext now builds the full role-specific profile at login time
+// (merging the auth identity with the doctor/patient/medical_store record
+// from the real backend - see enrichProfile() in context/AuthContext.jsx),
+// so `user` from useAuth() already IS the resolved profile. This is kept
+// as a pass-through so every page that calls resolveProfile(user) keeps
+// working unchanged.
 export function resolveProfile(user) {
-  if (!user) return null;
+  return user || null;
+}
 
-  const base = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    phone: '',
-    status: 'active',
-    lastLogin: '—',
-  };
-
-  if (user.role === 'doctor') {
-    const rec = doctors.find((d) => d.id === user.id) || doctors.find((d) => d.email === user.email);
-    return {
-      ...base,
-      ...(rec || {}),
-      name: user.name,
-      email: rec?.email || user.email,
-      roleLabel: 'Doctor',
-      specialization: rec?.specialization,
-      department: rec?.department,
-      experience: rec?.experience,
-      qualification: rec?.qualification,
-      licenseNo: rec?.licenseNo,
-      fee: rec?.fee,
-      availability: rec?.availability,
-      doctorId: rec?.doctorId,
-      address: rec?.address,
-      status: rec?.status || 'Active',
-      phone: rec?.phone || base.phone,
-    };
+// Convenience helper for pages: returns the role-specific id used to filter
+// records (doctorId / patientId / etc). doctorId/patientId are the
+// backend's human-readable codes (DOC-100001 etc) but appointments/
+// prescriptions/etc are keyed by the internal numeric id, so most page
+// filtering should use profile.id, not this - use getRoleId() only where a
+// human-readable code is what's actually needed (e.g. displaying "My ID").
+export function getRoleId(profile) {
+  if (!profile) return null;
+  switch (profile.role) {
+    case 'doctor': return profile.doctorId || profile.id;
+    case 'patient': return profile.patientId || profile.id;
+    case 'reception': return profile.receptionId || profile.id;
+    case 'medical_store': return profile.storeCode || profile.id;
+    case 'admin': return profile.adminId || profile.id;
+    default: return profile.id;
   }
-
-  if (user.role === 'patient') {
-    const rec = patients.find((p) => p.id === user.id) || patients.find((p) => p.email === user.email);
-    return {
-      ...base,
-      ...(rec || {}),
-      name: user.name,
-      email: rec?.email || user.email,
-      roleLabel: 'Patient',
-      patientId: rec?.patientId,
-      bloodGroup: rec?.bloodGroup,
-      dob: rec?.dob,
-      gender: rec?.gender,
-      address: rec?.address,
-      registeredDate: rec?.registeredDate,
-      phone: rec?.phone || base.phone,
-    };
-  }
-
-  const rec = users.find((u) => u.email === user.email);
-  const storeRec = user.role === 'medical_store' ? medicalStores.find((s) => s.name === user.name) || medicalStores[0] : null;
-  const matched = rec || storeRec;
-
-  return {
-    ...base,
-    ...(matched || {}),
-    name: user.name,
-    email: user.email,
-    roleLabel: user.role,
-    id: storeRec?.storeCode || matched?.id || user.id,
-    storeCode: storeRec?.storeCode,
-    status: matched?.status || 'active',
-    lastLogin: matched?.lastLogin || '—',
-    phone: matched?.phone || base.phone,
-  };
 }

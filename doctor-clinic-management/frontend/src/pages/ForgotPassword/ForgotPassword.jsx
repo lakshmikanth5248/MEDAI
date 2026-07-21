@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { findUserByEmail, encodeResetToken } from '../../services/userStore';
+import * as authApi from '../../services/api/auth';
+import { getErrorMessage } from '../../services/apiError';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { HospitalIcon } from '../../components/Brand/Brand';
 import './ForgotPassword.css';
 
 export default function ForgotPassword() {
@@ -30,19 +32,19 @@ export default function ForgotPassword() {
     setError('');
     setFieldError('');
     if (!validate()) return;
-    const registered = findUserByEmail(email);
-    if (!registered) {
-      setFieldError(t('forgot.noAccountFound'));
-      return;
-    }
     setLoading(true);
     try {
-      await new Promise(r => setTimeout(r, 1500));
-      const token = encodeResetToken(email);
-      setResetUrl(`${window.location.origin}/reset-password?token=${encodeURIComponent(token)}`);
+      // The backend responds identically whether or not the account exists
+      // (so this can't be used to enumerate registered emails) - it only
+      // includes resetToken when the account is real. No real email is sent
+      // in this build; the reset link is returned directly for dev/testing.
+      const { resetToken } = await authApi.forgotPassword(email);
+      if (resetToken) {
+        setResetUrl(`${window.location.origin}/reset-password?token=${encodeURIComponent(resetToken)}`);
+      }
       setSent(true);
-    } catch {
-      setError(t('auth.errorOccurred'));
+    } catch (err) {
+      setError(getErrorMessage(err, t('auth.errorOccurred')));
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,7 @@ export default function ForgotPassword() {
     <div className="forgot-page">
       <div className="forgot-card">
         <Link to="/" className="forgot-logo">
-          <span className="forgot-logo-icon">+C</span>
+          <span className="forgot-logo-icon"><HospitalIcon /></span>
           <span className="forgot-logo-text">ClinicManager</span>
         </Link>
 

@@ -1,46 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../../components/Buttons';
 import { Modal } from '../../components/Modal';
-import { appointments, currentPatient, doctors } from '../../utils/mockData';
+import { PageLoader } from '../../components/Loader/Loader';
+import * as clinicalApi from '../../services/api/clinical';
+import { getErrorMessage } from '../../services/apiError';
 import { getStatusBadgeClass, formatDate, getInitials } from '../../utils/helpers';
+import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './MyAppointments.css';
 
 const MyAppointments = () => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const patientId = user?.id;
   const [activeTab, setActiveTab] = useState('upcoming');
   const [selectedAppt, setSelectedAppt] = useState(null);
   const [dateFilter, setDateFilter] = useState('');
 
-  const [allPatientAppts, setAllPatientAppts] = useState(() =>
-    appointments
-      .filter((a) => a.patientId === currentPatient.id)
-      .map((a) => ({ ...a, doctorName: doctors.find((d) => d.id === a.doctorId)?.name || 'Unknown' }))
-  );
+  const [allPatientAppts, setAllPatientAppts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const [rescheduleAppt, setRescheduleAppt] = useState(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
 
-  const cancelAppointment = (id) => {
-    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
-    setAllPatientAppts((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'cancelled' } : a))
-    );
+  const loadData = useCallback(async () => {
+    if (!patientId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [appts, doctors] = await Promise.all([
+        clinicalApi.getAppointments({ patientId }),
+        clinicalApi.getDoctors(),
+      ]);
+      setAllPatientAppts(
+        appts.map((a) => ({ ...a, doctorName: doctors.find((d) => d.id === a.doctorId)?.name || 'Unknown' }))
+      );
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load appointments'));
+    } finally {
+      setLoading(false);
+    }
+  }, [patientId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const cancelAppointment = async (id) => {
+    if (!window.confirm(t('pg.patient.myAppointments.cancelConfirm'))) return;
+    setActionError(null);
+    try {
+      const updated = await clinicalApi.updateAppointmentStatus(id, { status: 'cancelled' });
+      setAllPatientAppts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, ...updated, doctorName: a.doctorName } : a))
+      );
+    } catch (err) {
+      setActionError(getErrorMessage(err, 'Failed to cancel appointment'));
+    }
   };
 
   const openReschedule = (appt) => {
+    setActionError(null);
     setRescheduleAppt(appt);
     setRescheduleDate(appt.date);
     setRescheduleTime(appt.time);
   };
 
-  const confirmReschedule = () => {
+  const confirmReschedule = async () => {
     if (!rescheduleAppt) return;
-    setAllPatientAppts((prev) =>
-      prev.map((a) =>
-        a.id === rescheduleAppt.id ? { ...a, date: rescheduleDate, time: rescheduleTime, status: 'rescheduled' } : a
-      )
-    );
-    setRescheduleAppt(null);
+    setActionError(null);
+    try {
+      const updated = await clinicalApi.updateAppointmentStatus(rescheduleAppt.id, {
+        status: 'rescheduled',
+        date: rescheduleDate,
+        time: rescheduleTime,
+      });
+      setAllPatientAppts((prev) =>
+        prev.map((a) => (a.id === rescheduleAppt.id ? { ...a, ...updated, doctorName: a.doctorName } : a))
+      );
+      setRescheduleAppt(null);
+    } catch (err) {
+      setActionError(getErrorMessage(err, 'Failed to reschedule appointment'));
+    }
   };
 
   const upcoming = allPatientAppts.filter((a) => ['scheduled', 'confirmed', 'arrived'].includes(a.status?.toLowerCase()));
@@ -53,18 +97,35 @@ const MyAppointments = () => {
     ? displayAppts.filter((a) => a.date === dateFilter)
     : displayAppts;
 
+  const noAppointmentsTitle = activeTab === 'upcoming'
+    ? t('pg.patient.myAppointments.noUpcomingAppointments')
+    : activeTab === 'past'
+      ? t('pg.patient.myAppointments.noPastAppointments')
+      : t('pg.patient.myAppointments.noCancelledAppointments');
+
+  const noAppointmentsText = activeTab === 'upcoming'
+    ? t('pg.patient.myAppointments.noUpcomingText')
+    : activeTab === 'past'
+      ? t('pg.patient.myAppointments.noPastText')
+      : t('pg.patient.myAppointments.noCancelledText');
+
+  if (loading) return <PageLoader />;
+
   return (
     <div className="page my-appointments">
       <div className="page-header">
-        <h1>My Appointments</h1>
+        <h1>{t('pg.patient.myAppointments.title')}</h1>
       </div>
+
+      {error && <p className="text-danger">{error}</p>}
+      {actionError && <p className="text-danger">{actionError}</p>}
 
       <div className="appt-tabs">
         <button className={`appt-tab ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}>
-          Upcoming {upcoming.length > 0 && <span className="tab-count">{upcoming.length}</span>}
+          {t('pg.patient.myAppointments.tabUpcoming')} {upcoming.length > 0 && <span className="tab-count">{upcoming.length}</span>}
         </button>
-        <button className={`appt-tab ${activeTab === 'past' ? 'active' : ''}`} onClick={() => setActiveTab('past')}>Past</button>
-        <button className={`appt-tab ${activeTab === 'cancelled' ? 'active' : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
+        <button className={`appt-tab ${activeTab === 'past' ? 'active' : ''}`} onClick={() => setActiveTab('past')}>{t('pg.patient.myAppointments.tabPast')}</button>
+        <button className={`appt-tab ${activeTab === 'cancelled' ? 'active' : ''}`} onClick={() => setActiveTab('cancelled')}>{t('pg.patient.myAppointments.tabCancelled')}</button>
       </div>
 
       <div className="appt-filters">
@@ -74,9 +135,9 @@ const MyAppointments = () => {
       {filtered.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📅</div>
-          <h3>No {activeTab} appointments</h3>
-          <p className="text-muted">You don't have any {activeTab} appointments at the moment.</p>
-          {activeTab === 'upcoming' && <Button onClick={() => window.location.href = '/patient/book-appointment'}>Book Appointment</Button>}
+          <h3>{noAppointmentsTitle}</h3>
+          <p className="text-muted">{noAppointmentsText}</p>
+          {activeTab === 'upcoming' && <Button onClick={() => window.location.href = '/patient/book-appointment'}>{t('pg.patient.myAppointments.bookAppointment')}</Button>}
         </div>
       ) : (
         <div className="appt-list">
@@ -96,8 +157,8 @@ const MyAppointments = () => {
               <div className="appt-card-actions">
                 {['scheduled', 'confirmed'].includes(appt.status?.toLowerCase()) && (
                   <>
-                    <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); cancelAppointment(appt.id); }}>Cancel</Button>
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openReschedule(appt); }}>Reschedule</Button>
+                    <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); cancelAppointment(appt.id); }}>{t('pg.patient.myAppointments.cancel')}</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); openReschedule(appt); }}>{t('pg.patient.myAppointments.reschedule')}</Button>
                   </>
                 )}
               </div>
@@ -106,15 +167,15 @@ const MyAppointments = () => {
         </div>
       )}
 
-      <Modal isOpen={!!selectedAppt} onClose={() => setSelectedAppt(null)} title="Appointment Details">
+      <Modal isOpen={!!selectedAppt} onClose={() => setSelectedAppt(null)} title={t('pg.patient.myAppointments.appointmentDetails')}>
         {selectedAppt && (
           <div className="appt-detail-modal">
-            <div className="appt-detail-row"><label>Doctor</label><span>{selectedAppt.doctorName}</span></div>
-            <div className="appt-detail-row"><label>Department</label><span>{selectedAppt.department}</span></div>
-            <div className="appt-detail-row"><label>Date</label><span>{formatDate(selectedAppt.date)}</span></div>
-            <div className="appt-detail-row"><label>Time</label><span>{selectedAppt.time}</span></div>
-            <div className="appt-detail-row"><label>Status</label><span className={`status-badge ${getStatusBadgeClass(selectedAppt.status)}`}>{selectedAppt.status}</span></div>
-            <div className="appt-detail-row"><label>Reason</label><span>{selectedAppt.reason}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblDoctor')}</label><span>{selectedAppt.doctorName}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblDepartment')}</label><span>{selectedAppt.department}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblDate')}</label><span>{formatDate(selectedAppt.date)}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblTime')}</label><span>{selectedAppt.time}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblStatus')}</label><span className={`status-badge ${getStatusBadgeClass(selectedAppt.status)}`}>{selectedAppt.status}</span></div>
+            <div className="appt-detail-row"><label>{t('pg.patient.myAppointments.lblReason')}</label><span>{selectedAppt.reason}</span></div>
           </div>
         )}
       </Modal>
@@ -122,23 +183,23 @@ const MyAppointments = () => {
       <Modal
         isOpen={!!rescheduleAppt}
         onClose={() => setRescheduleAppt(null)}
-        title="Reschedule Appointment"
+        title={t('pg.patient.myAppointments.rescheduleAppointment')}
         footer={
           <>
-            <Button variant="secondary" size="sm" onClick={() => setRescheduleAppt(null)}>Cancel</Button>
-            <Button size="sm" onClick={confirmReschedule}>Save</Button>
+            <Button variant="secondary" size="sm" onClick={() => setRescheduleAppt(null)}>{t('pg.patient.myAppointments.cancel')}</Button>
+            <Button size="sm" onClick={confirmReschedule}>{t('pg.patient.myAppointments.save')}</Button>
           </>
         }
       >
         {rescheduleAppt && (
           <div className="reschedule-form">
-            <p className="text-muted">Doctor: {rescheduleAppt.doctorName}</p>
+            <p className="text-muted">{t('pg.patient.myAppointments.doctor')} {rescheduleAppt.doctorName}</p>
             <div className="form-group">
-              <label>Date</label>
+              <label>{t('pg.patient.myAppointments.lblDate')}</label>
               <input type="date" className="form-input" value={rescheduleDate} onChange={(e) => setRescheduleDate(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Time</label>
+              <label>{t('pg.patient.myAppointments.lblTime')}</label>
               <input type="time" className="form-input" value={rescheduleTime} onChange={(e) => setRescheduleTime(e.target.value)} />
             </div>
           </div>

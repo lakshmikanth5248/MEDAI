@@ -1,0 +1,34 @@
+[
+    {
+        "Name":  "auth-service",
+        "Pid":  31436
+    },
+    {
+        "Name":  "clinical-service",
+        "Pid":  24996
+    },
+    {
+        "Name":  "pharmacy-service",
+        "Pid":  14232
+    },
+    {
+        "Name":  "prescription-service",
+        "Pid":  21152
+    },
+    {
+        "Name":  "billing-service",
+        "Pid":  20220
+    },
+    {
+        "Name":  "notification-service",
+        "Pid":  29492
+    },
+    {
+        "Name":  "core-service",
+        "Pid":  26752
+    },
+    {
+        "Name":  "gateway",
+        "Pid":  29508
+    }
+]

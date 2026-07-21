@@ -4,6 +4,29 @@
   min-height: 100vh;
 }
 
+.login-home {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-dark-blue);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.login-home:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-sky-blue);
+  transform: translateY(-1px);
+}
+
 .login-illustration {
   position: relative;
   display: flex;
@@ -59,6 +82,11 @@
   justify-content: center;
   font-weight: 700;
   font-size: 18px;
+}
+
+.login-brand-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .login-brand-name {
@@ -306,4 +334,22 @@
   .login-form-container {
     padding: 24px;
   }
+}
+
+.login-staff-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.login-staff-toggle:hover {
+  background: #eff6ff;
 }

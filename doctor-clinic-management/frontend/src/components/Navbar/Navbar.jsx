@@ -130,9 +130,30 @@ export default function Navbar() {
     navigate(`/${prefix}/notifications`);
   };
 
+  const goHome = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  const goBack = () => {
+    navigate(-1);
+  };
+
   return (
     <header className="navbar">
       <div className="navbar-left">
+        <button className="navbar-back" aria-label={t('nav.back')} onClick={goBack}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
+        <button className="navbar-home" aria-label={t('nav.home')} onClick={goHome}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9.5 12 3l9 6.5" />
+            <path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10" />
+          </svg>
+        </button>
         <h2 className="navbar-title">{t('nav.appName')}</h2>
       </div>
 

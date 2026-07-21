@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Input } from '../../components/Forms';
-import { decodeResetToken, updatePassword } from '../../services/userStore';
+import * as authApi from '../../services/api/auth';
+import { getErrorMessage } from '../../services/apiError';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { HospitalIcon } from '../../components/Brand/Brand';
 import '../ForgotPassword/ForgotPassword.css';
 
 export default function ResetPassword() {
@@ -26,21 +28,18 @@ export default function ResetPassword() {
     return Object.keys(err).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    const email = decodeResetToken(token);
-    if (!email) {
-      setErrors({ confirm: t('reset.invalidLink') });
-      return;
-    }
     setLoading(true);
-    setTimeout(() => {
-      const updated = updatePassword(email, password);
+    try {
+      await authApi.resetPassword(token, password);
+      setDone(true);
+    } catch (err) {
+      setErrors({ confirm: getErrorMessage(err, t('reset.unableUpdate')) });
+    } finally {
       setLoading(false);
-      if (updated) setDone(true);
-      else setErrors({ confirm: t('reset.unableUpdate') });
-    }, 1200);
+    }
   };
 
   if (!token) {
@@ -48,7 +47,7 @@ export default function ResetPassword() {
       <div className="forgot-page">
         <div className="forgot-card">
           <Link to="/" className="forgot-logo">
-            <span className="forgot-logo-icon">+C</span>
+            <span className="forgot-logo-icon"><HospitalIcon /></span>
             <span className="forgot-logo-text">ClinicManager</span>
           </Link>
           <div className="forgot-error" style={{ textAlign: 'center' }}>
@@ -67,7 +66,7 @@ export default function ResetPassword() {
       <div className="forgot-page">
         <div className="forgot-card">
           <Link to="/" className="forgot-logo">
-            <span className="forgot-logo-icon">+C</span>
+            <span className="forgot-logo-icon"><HospitalIcon /></span>
             <span className="forgot-logo-text">ClinicManager</span>
           </Link>
           <div className="forgot-success">
@@ -91,7 +90,7 @@ export default function ResetPassword() {
     <div className="forgot-page">
       <div className="forgot-card">
         <Link to="/" className="forgot-logo">
-          <span className="forgot-logo-icon">+C</span>
+          <span className="forgot-logo-icon"><HospitalIcon /></span>
           <span className="forgot-logo-text">ClinicManager</span>
         </Link>
 

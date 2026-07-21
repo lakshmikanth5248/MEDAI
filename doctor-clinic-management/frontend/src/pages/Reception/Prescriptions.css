@@ -1,0 +1,10 @@
+.reception-prx-page { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.prx-filters { display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center; }
+.prx-detail-modal { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.prx-detail-section label { display: block; font-size: var(--font-size-xs); color: var(--color-gray-500); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.04em; }
+.prx-detail-section p { margin: 2px 0 0; font-size: var(--font-size-md); }
+.prx-med-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-sm); }
+.prx-med-table th, .prx-med-table td { border: 1px solid var(--color-gray-200); padding: 6px 8px; font-size: var(--font-size-sm); text-align: left; }
+.prx-med-table th { background: var(--color-gray-50); font-weight: var(--font-weight-semibold); }
+.dispense-actions { display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-md); }
+.action-icons { display: flex; gap: var(--spacing-sm); }

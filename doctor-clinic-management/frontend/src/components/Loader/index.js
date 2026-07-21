@@ -1,1 +1,1 @@
-export { default as Loader } from './Loader';
+export { Loader, PageLoader, Skeleton, TableSkeleton } from './Loader';

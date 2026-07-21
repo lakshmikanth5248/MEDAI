@@ -1,0 +1,16 @@
+[project]
+name = "clinic-shared"
+version = "0.1.0"
+description = "Shared JWT/internal-auth/error/db helpers for doctor-clinic-management microservices"
+requires-python = ">=3.10"
+dependencies = [
+    "PyJWT>=2.8.0",
+    "Flask>=3.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["clinic_shared*"]
