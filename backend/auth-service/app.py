@@ -1,5 +1,4 @@
-#from clinic_shared import register_error_handlers
-from shared import register_error_handlersom 
+from clinic_shared import register_error_handlers
 from flask import Flask, jsonify
 
 import config

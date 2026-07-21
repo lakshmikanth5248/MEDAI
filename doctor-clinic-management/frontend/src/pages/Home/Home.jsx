@@ -9,9 +9,9 @@ import { patients, departments, doctors } from '../../utils/mockData';
 import './Home.css';
 
 const DEVELOPERS = [
-  { name: 'Member One', role: 'Frontend Developer', bio: 'Add bio-data here.', initial: 'M1' },
-  { name: 'Member Two', role: 'Backend Developer', bio: 'Add bio-data here.', initial: 'M2' },
-  { name: 'Member Three', role: 'UI/UX Designer', bio: 'Add bio-data here.', initial: 'M3' },
+  { name: 'V. LAKSHMIKANTH REDDY', role: 'TEAM LEADER', bio: 'B.Tech (ECE)', initial: 'M1' },
+  { name: 'G. JAYA SINDHU', role: 'TEAM MEMBER', bio: 'B.Tech (CAI)', initial: 'M2' },
+  { name: 'VENKAT REDDY', role: 'TEAM MEMBER', bio: 'B.Tech (CSE)', initial: 'M3' },
 ];
 
 // Derive live "By the Numbers" stats from the app's real data.

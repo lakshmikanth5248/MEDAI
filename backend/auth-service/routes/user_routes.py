@@ -4,6 +4,7 @@ from sqlalchemy import or_
 
 from db import session
 from models import StaffProfile, User
+from services.password_service import hash_password, validate_password
 from .auth_routes import _user_public
 
 bp = Blueprint("users", __name__)
@@ -38,8 +39,8 @@ def list_users():
 def update_user_status(user_id):
     body = request.get_json(silent=True) or {}
     status = body.get("status")
-    if status not in ("active", "inactive"):
-        raise APIError("status must be 'active' or 'inactive'", 400, "validation_error")
+    if status not in ("active", "inactive", "blocked"):
+        raise APIError("status must be 'active', 'inactive', or 'blocked'", 400, "validation_error")
 
     user = session.query(User).get(user_id)
     if not user:
@@ -53,15 +54,6 @@ def update_user_status(user_id):
 @bp.patch("/users/<int:user_id>")
 @require_auth
 def update_user(user_id):
-    """Edit of the auth identity (name/email), plus the linked staff_profiles
-    row (phone/floor/shift) for reception/admin accounts - doctor/patient/
-    medical_store domain profiles are edited on their own service
-    (PUT /clinical/doctors/:id etc), not here.
-
-    Admins can edit any user; everyone else can only edit their own record
-    (this is how reception/admin accounts self-service their own profile,
-    since they have no dedicated domain service like doctors/patients do).
-    """
     caller = current_user()
     if caller["role"] != "admin" and caller["id"] != user_id:
         raise APIError("You can only edit your own profile", 403, "forbidden")
@@ -75,6 +67,10 @@ def update_user(user_id):
         user.name = body["name"]
     if "email" in body:
         user.email = body["email"].strip().lower()
+    if "phone" in body and caller["role"] == "admin":
+        profile = session.query(StaffProfile).filter(StaffProfile.user_id == user_id).first()
+        if profile:
+            profile.phone = body["phone"]
 
     profile = session.query(StaffProfile).filter(StaffProfile.user_id == user_id).first()
     if profile:
@@ -90,14 +86,56 @@ def update_user(user_id):
 @require_auth
 @require_role("admin")
 def delete_user(user_id):
-    """Deletes the login only. The linked doctor/patient/medical_store
-    profile row (if any) survives with user_id set to NULL (ON DELETE
-    SET NULL) - this revokes access without destroying clinical data.
-    """
     user = session.query(User).get(user_id)
     if not user:
         raise APIError("User not found", 404, "not_found")
 
     session.delete(user)
     session.commit()
-    return jsonify({"message": "User deleted"})
+    return jsonify({"message": "User deleted successfully"})
+
+
+@bp.post("/users/<int:user_id>/reset-password")
+@require_auth
+@require_role("admin")
+def reset_user_password(user_id):
+    body = request.get_json(silent=True) or {}
+    new_password = body.get("newPassword") or ""
+
+    user = session.query(User).get(user_id)
+    if not user:
+        raise APIError("User not found", 404, "not_found")
+
+    if new_password:
+        pwd_errors = validate_password(new_password)
+        if pwd_errors:
+            raise APIError("; ".join(pwd_errors), 400, "validation_error")
+        user.password_hash = hash_password(new_password)
+    else:
+        from config import staff_default_password
+        default_password = staff_default_password(user.role)
+        user.password_hash = hash_password(default_password)
+
+    user.must_change_password = True
+    session.commit()
+    return jsonify({"message": "Password reset successfully"})
+
+
+@bp.get("/users/stats")
+@require_auth
+@require_role("admin")
+def user_stats():
+    from sqlalchemy import func
+    total = session.query(func.count(User.id)).scalar()
+    active = session.query(func.count(User.id)).filter(User.status == "active").scalar()
+    inactive = session.query(func.count(User.id)).filter(User.status == "inactive").scalar()
+    blocked = session.query(func.count(User.id)).filter(User.status == "blocked").scalar()
+    role_counts = session.query(User.role, func.count(User.id)).group_by(User.role).all()
+
+    return jsonify({
+        "total": total,
+        "active": active,
+        "inactive": inactive,
+        "blocked": blocked,
+        "byRole": {role: count for role, count in role_counts},
+    })

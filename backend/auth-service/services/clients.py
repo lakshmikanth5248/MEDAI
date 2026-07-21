@@ -48,3 +48,48 @@ def create_store_profile(user_id, name, email, **fields):
     )
     resp.raise_for_status()
     return resp.json()
+
+
+def create_reception_profile(user_id, name, email, **fields):
+    resp = requests.post(
+        f"{config.CLINICAL_SERVICE_URL}/internal/receptionists",
+        json={"userId": user_id, "name": name, "email": email, **fields},
+        headers=_internal_headers(),
+        timeout=TIMEOUT,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def send_welcome_sms(phone, name, patient_id):
+    try:
+        requests.post(
+            f"{config.NOTIFICATION_SERVICE_URL}/sms-logs",
+            json={
+                "phone": phone, "recipient": name, "patientId": patient_id,
+                "message": f"Dear {name}, welcome to {config.CLINIC_NAME}! Your account has been created successfully.",
+                "type": "welcome",
+            },
+            headers=_internal_headers(),
+            timeout=5,
+        )
+    except requests.exceptions.RequestException:
+        pass
+
+
+def send_welcome_email(email, name, patient_id):
+    try:
+        clinic_name = config.CLINIC_NAME
+        html = f"<h2>Welcome to {clinic_name}</h2><p>Dear {name},</p><p>Your account has been created successfully. You can now book appointments online.</p>"
+        requests.post(
+            f"{config.NOTIFICATION_SERVICE_URL}/email-logs/send",
+            json={
+                "email": email, "subject": f"Welcome to {clinic_name}",
+                "message": html, "recipient": name, "type": "welcome",
+                "patientId": patient_id,
+            },
+            headers=_internal_headers(),
+            timeout=5,
+        )
+    except requests.exceptions.RequestException:
+        pass

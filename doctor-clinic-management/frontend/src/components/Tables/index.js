@@ -1,1 +1,1 @@
-export { default as DataTable } from './DataTable';
+export { DataTable, StatusBadge } from './Tables';

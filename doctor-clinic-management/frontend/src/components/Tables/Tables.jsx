@@ -181,7 +181,7 @@ export const DataTable = ({
                 >
                   {columns.map((col) => (
                     <td key={col.key}>
-                      {isStatusColumn(col.key) ? (
+                      {isStatusColumn(col.key) && !col.render ? (
                         <StatusBadge status={renderCell(row, col)} />
                       ) : (
                         renderCell(row, col)

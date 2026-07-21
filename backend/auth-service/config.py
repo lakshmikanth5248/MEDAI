@@ -16,6 +16,8 @@ PORT = int(os.environ.get("AUTH_SERVICE_PORT", 5001))
 
 CLINICAL_SERVICE_URL = os.environ.get("CLINICAL_SERVICE_URL", "http://127.0.0.1:5002")
 PHARMACY_SERVICE_URL = os.environ.get("PHARMACY_SERVICE_URL", "http://127.0.0.1:5004")
+NOTIFICATION_SERVICE_URL = os.environ.get("NOTIFICATION_SERVICE_URL", "http://127.0.0.1:5006")
+CLINIC_NAME = os.environ.get("CLINIC_NAME", "City Care Clinic")
 
 
 def staff_default_password(role):

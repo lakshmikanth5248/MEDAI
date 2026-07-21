@@ -21,11 +21,11 @@ def next_code(session, schema_qualified_sequence_name, prefix, pad=4):
 
 
 ROLE_UID_SEQUENCE = {
-    "doctor": ("clinic_auth.doctor_uid_seq", "DOC-"),
-    "reception": ("clinic_auth.reception_uid_seq", "REC-"),
-    "patient": ("clinic_auth.patient_uid_seq", "PAT-"),
-    "medical_store": ("clinic_auth.store_uid_seq", "STORE-"),
-    "admin": ("clinic_auth.admin_uid_seq", "USER-"),
+    "doctor": ("clinic_auth.doctor_uid_seq", "DOC"),
+    "reception": ("clinic_auth.reception_uid_seq", "REC"),
+    "patient": ("clinic_auth.patient_uid_seq", "PAT"),
+    "medical_store": ("clinic_auth.store_uid_seq", "MED"),
+    "admin": ("clinic_auth.admin_uid_seq", "ADM"),
 }
 
 

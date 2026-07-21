@@ -32,6 +32,7 @@ class Prescription(Base):
     notes = Column(Text)
     status = Column(PrescriptionStatus, nullable=False, default="pending")
     total_cost = Column(Numeric(10, 2))
+    pdf_path = Column(String)
     dispensed_by = Column(BigInteger)
     dispensed_at = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), default=utcnow)
@@ -46,6 +47,7 @@ class Prescription(Base):
             "date": self.rx_date.isoformat() if self.rx_date else None,
             "notes": self.notes, "status": self.status,
             "totalCost": float(self.total_cost) if self.total_cost is not None else None,
+            "pdfPath": self.pdf_path,
             "dispensedBy": self.dispensed_by,
             "dispensedAt": self.dispensed_at.isoformat() if self.dispensed_at else None,
         }

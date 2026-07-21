@@ -4,7 +4,7 @@ from clinic_shared import APIError, current_user, require_auth
 from flask import Blueprint, jsonify, request
 
 from db import session
-from models import Appointment, Doctor
+from models import Appointment, Doctor, Patient
 from services import clients
 from services.appointment_service import apply_status_transition, check_slot_conflict
 from services.codes import next_appointment_code
@@ -69,10 +69,37 @@ def create_appointment():
     session.add(appointment)
     session.commit()
 
+    patient = session.query(Patient).get(body["patientId"])
+    patient_name = patient.name if patient else "Patient"
+    patient_phone = patient.phone if patient else None
+    patient_email = patient.email if patient else None
+
     clients.notify(
         f"New appointment booked for {body['date']} {body['time']}",
         recipient_role="doctor", target_user_id=doctor.user_id, from_role="patient",
     )
+
+    if patient_phone:
+        clients.send_sms_notification(
+            patient_phone,
+            f"Dear {patient_name}, your appointment at {config.CLINIC_NAME} is confirmed. Doctor: {doctor.name}, Date: {body['date']}, Time: {body['time']}.",
+            patient_name, "appointment_confirmation", body["patientId"],
+        )
+    if patient_email:
+        clinic_name = config.CLINIC_NAME
+        html = f"""
+        <h2>Appointment Confirmed</h2>
+        <p>Dear {patient_name},</p>
+        <p>Your appointment has been confirmed at <strong>{clinic_name}</strong>.</p>
+        <p><strong>Doctor:</strong> Dr. {doctor.name}<br>
+        <strong>Date:</strong> {body['date']}<br>
+        <strong>Time:</strong> {body['time']}</p>
+        """
+        clients.send_email_notification(
+            patient_email, f"Appointment Confirmed - {config.CLINIC_NAME}",
+            html, patient_name, "appointment_confirmation", body["patientId"],
+        )
+
     return jsonify({"appointment": appointment.to_dict()}), 201
 
 
@@ -102,10 +129,31 @@ def update_appointment_status(appointment_id):
 
     if new_status == "cancelled":
         doctor = session.query(Doctor).get(appointment.doctor_id)
+        patient = session.query(Patient).get(appointment.patient_id)
         clients.notify(
             f"Appointment #{appointment.appointment_code} was cancelled",
             recipient_role="doctor", target_user_id=doctor.user_id if doctor else None,
             from_role=current_user()["role"],
         )
+        if patient:
+            if patient.phone:
+                clinic_name = config.CLINIC_NAME
+                clients.send_sms_notification(
+                    patient.phone,
+                    f"Dear {patient.name}, your appointment on {appointment.appt_date} at {appointment.appt_time} at {clinic_name} has been cancelled.",
+                    patient.name, "appointment_cancellation", appointment.patient_id,
+                )
+            if patient.email:
+                clinic_name = config.CLINIC_NAME
+                html = f"""
+                <h2>Appointment Cancelled</h2>
+                <p>Dear {patient.name},</p>
+                <p>Your appointment at <strong>{clinic_name}</strong> on <strong>{appointment.appt_date}</strong> at <strong>{appointment.appt_time}</strong> has been cancelled.</p>
+                """
+                clients.send_email_notification(
+                    patient.email,
+                    f"Appointment Cancelled - {clinic_name}",
+                    html, patient.name, "appointment_cancellation", appointment.patient_id,
+                )
 
     return jsonify({"appointment": appointment.to_dict()})

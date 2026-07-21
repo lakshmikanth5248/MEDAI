@@ -70,10 +70,16 @@ class Doctor(Base):
     image_url = Column(String)
     phone = Column(String)
     address = Column(Text)
+    city = Column(String)
+    state = Column(String)
+    pin_code = Column(String)
+    dob = Column(Date)
+    room_no = Column(String)
     license_no = Column(String, unique=True)
     email = Column(CITEXT)
     gender = Column(Gender)
     age = Column(Integer)
+    created_by = Column(BigInteger)
     status = Column(EntityStatus, nullable=False, default="active")
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
@@ -89,10 +95,59 @@ class Doctor(Base):
             "qualification": self.qualification, "education": self.qualification,
             "experience": self.experience_years, "fee": float(self.fee) if self.fee is not None else None,
             "availability": f"{self.availability_days or ''} {self.availability_hours or ''}".strip() or None,
+            "availabilityDays": self.availability_days,
+            "availabilityHours": self.availability_hours,
             "rating": float(self.rating) if self.rating is not None else None,
             "image": self.image_url, "phone": self.phone, "address": self.address,
+            "city": self.city, "state": self.state, "pinCode": self.pin_code,
+            "dob": self.dob.isoformat() if self.dob else None,
+            "roomNo": self.room_no,
             "licenseNo": self.license_no, "email": self.email, "gender": self.gender,
-            "age": self.age, "status": self.status,
+            "age": self.age, "createdBy": self.created_by, "status": self.status,
+        }
+
+
+class Receptionist(Base):
+    __tablename__ = "receptionists"
+    __table_args__ = {"schema": "clinical"}
+
+    id = Column(BigInteger, primary_key=True)
+    reception_code = Column(String, unique=True, nullable=False)
+    user_id = Column(BigInteger, unique=True)
+    department_id = Column(BigInteger, ForeignKey("clinical.departments.id"))
+    name = Column(String, nullable=False)
+    email = Column(CITEXT)
+    phone = Column(String)
+    gender = Column(Gender)
+    dob = Column(Date)
+    image_url = Column(String)
+    employee_no = Column(String)
+    shift = Column(String)
+    joining_date = Column(Date)
+    desk_no = Column(String)
+    address = Column(Text)
+    city = Column(String)
+    state = Column(String)
+    pin_code = Column(String)
+    status = Column(EntityStatus, nullable=False, default="active")
+    created_by = Column(BigInteger)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+    department = relationship("Department")
+
+    def to_dict(self):
+        return {
+            "id": self.id, "receptionId": self.reception_code, "userId": self.user_id,
+            "departmentId": self.department_id,
+            "department": self.department.name if self.department else None,
+            "name": self.name, "email": self.email, "phone": self.phone,
+            "gender": self.gender, "dob": self.dob.isoformat() if self.dob else None,
+            "image": self.image_url, "employeeNo": self.employee_no,
+            "shift": self.shift, "joiningDate": self.joining_date.isoformat() if self.joining_date else None,
+            "deskNo": self.desk_no, "address": self.address,
+            "city": self.city, "state": self.state, "pinCode": self.pin_code,
+            "status": self.status,
         }
 
 

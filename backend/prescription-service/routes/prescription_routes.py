@@ -1,23 +1,20 @@
+import os
 from functools import wraps
 
 from clinic_shared import APIError, current_user, next_code, require_auth, require_role
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 
 import config
 from db import session
 from models import Prescription, PrescriptionItem
 from services.dispense_service import dispense
+from services.pdf_service import generate_prescription_pdf
 
 bp = Blueprint("prescriptions", __name__)
 VALID_DURATION_TYPES = ("days", "weeks", "months")
 
 
 def require_internal_or_user(fn):
-    """GET /prescriptions is read by end users (through the gateway) AND by
-    other services (clinical-service building a patient timeline, pharmacy-
-    service listing dispensed history) via the internal secret.
-    """
-
     @wraps(fn)
     def wrapper(*args, **kwargs):
         internal_secret = request.headers.get("X-Internal-Secret")
@@ -77,7 +74,9 @@ def create_prescription():
     prescription = Prescription(
         rx_code=_next_rx_code(),
         appointment_id=body.get("appointmentId"), consultation_id=body.get("consultationId"),
-        patient_id=body["patientId"], doctor_id=body["doctorId"], notes=body.get("notes"),
+        patient_id=body["patientId"], doctor_id=body["doctorId"],
+        store_id=body.get("storeId"),
+        notes=body.get("notes"),
         status="pending",
     )
     prescription.items = [
@@ -90,6 +89,27 @@ def create_prescription():
     ]
     session.add(prescription)
     session.commit()
+
+    try:
+        pdf_path = generate_prescription_pdf({
+            "rxCode": prescription.rx_code,
+            "clinicName": config.CLINIC_NAME,
+            "doctorName": body.get("doctorName", ""),
+            "doctorQualification": body.get("doctorQualification", ""),
+            "patientName": body.get("patientName", ""),
+            "patientId": body.get("patientIdDisplay", ""),
+            "patientAge": body.get("patientAge", ""),
+            "patientGender": body.get("patientGender", ""),
+            "diagnosis": body.get("diagnosis", ""),
+            "medicines": medicines,
+            "notes": body.get("notes", ""),
+            "nextVisit": body.get("nextVisit", ""),
+        })
+        prescription.pdf_path = pdf_path
+        session.commit()
+    except Exception as e:
+        pass
+
     return jsonify({"prescription": prescription.to_dict()}), 201
 
 
@@ -100,6 +120,17 @@ def get_prescription(prescription_id):
     if not prescription:
         raise APIError("Prescription not found", 404, "not_found")
     return jsonify({"prescription": prescription.to_dict()})
+
+
+@bp.get("/prescriptions/<int:prescription_id>/download")
+@require_auth
+def download_prescription(prescription_id):
+    prescription = session.query(Prescription).get(prescription_id)
+    if not prescription:
+        raise APIError("Prescription not found", 404, "not_found")
+    if not prescription.pdf_path or not os.path.exists(prescription.pdf_path):
+        raise APIError("PDF file not found", 404, "not_found")
+    return send_file(prescription.pdf_path, as_attachment=True, download_name=f"prescription_{prescription.rx_code}.pdf")
 
 
 @bp.post("/prescriptions/<int:prescription_id>/dispense")

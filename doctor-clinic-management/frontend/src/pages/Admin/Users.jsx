@@ -123,7 +123,7 @@ const UsersPage = () => {
   };
 
   const openAdd = () => {
-    setEditModal({ name: '', email: '', phone: '', role: 'reception', departmentId: '' });
+    setEditModal({ name: '', email: '', password: '', phone: '', role: 'reception', departmentId: '' });
     setSavedCreds(null);
     setIsAdd(true);
   };
@@ -191,8 +191,8 @@ const UsersPage = () => {
               <div className="staff-creds">
                 <div className="staff-saved-msg">User created</div>
                 <div className="cred-row"><span>Login ID</span><strong>{savedCreds.id}</strong></div>
-                <div className="cred-row"><span>Default Password</span><strong>{savedCreds.password}</strong></div>
-                <p className="cred-note">Share these credentials with the user - they must change the password on first login.</p>
+                <div className="cred-row"><span>Password</span><strong>{savedCreds.password}</strong></div>
+                <p className="cred-note">Share these credentials with the user.</p>
                 <div className="user-form-actions">
                   <Button onClick={closeModal}>Done</Button>
                 </div>
@@ -203,7 +203,10 @@ const UsersPage = () => {
                 <Input label="Email" name="email" type="email" value={editModal.email} onChange={(e) => setEditModal((p) => ({ ...p, email: e.target.value }))} />
                 <Input label="Phone" name="phone" value={editModal.phone || ''} onChange={(e) => setEditModal((p) => ({ ...p, phone: e.target.value }))} />
                 {isAdd && (
-                  <Select label="Role" name="role" value={editModal.role} onChange={(e) => setEditModal((p) => ({ ...p, role: e.target.value }))} options={ROLE_OPTIONS} />
+                  <>
+                    <Input label="Password" name="password" type="password" value={editModal.password || ''} onChange={(e) => setEditModal((p) => ({ ...p, password: e.target.value }))} required />
+                    <Select label="Role" name="role" value={editModal.role} onChange={(e) => setEditModal((p) => ({ ...p, role: e.target.value }))} options={ROLE_OPTIONS} />
+                  </>
                 )}
                 {isAdd && editModal.role === 'doctor' && (
                   <Select

@@ -13,3 +13,6 @@ export const createPrescription = (data) =>
 
 export const dispensePrescription = (id, storeId) =>
   apiClient.post(`/prescriptions/prescriptions/${id}/dispense`, { storeId }).then((r) => r.data.prescription);
+
+export const downloadPrescriptionPdf = (id) =>
+  apiClient.get(`/prescriptions/prescriptions/${id}/download`, { responseType: 'blob' }).then((r) => r.data);

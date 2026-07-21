@@ -1,7 +1,7 @@
 import apiClient from '../apiClient';
 
-export const login = (identifier, password, role) =>
-  apiClient.post('/auth/login', { identifier, password, role }).then((r) => r.data);
+export const login = (email, password) =>
+  apiClient.post('/auth/login', { email, password }).then((r) => r.data);
 
 export const register = (data) => apiClient.post('/auth/register', data).then((r) => r.data);
 
@@ -26,3 +26,6 @@ export const updateUserStatus = (id, status) =>
 export const updateUser = (id, data) => apiClient.patch(`/auth/users/${id}`, data).then((r) => r.data.user);
 
 export const deleteUser = (id) => apiClient.delete(`/auth/users/${id}`).then((r) => r.data);
+
+export const resetUserPassword = (id, data) =>
+  apiClient.post(`/auth/users/${id}/reset-password`, data).then((r) => r.data);

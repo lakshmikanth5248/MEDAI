@@ -44,8 +44,14 @@ def create_doctor():
         department_id=body["departmentId"], name=body["name"],
         specialization=body.get("specialization"), qualification=body.get("qualification"),
         experience_years=body.get("experience"), fee=body.get("fee", 0),
-        phone=body.get("phone"), address=body.get("address"), email=body.get("email"),
-        license_no=body.get("licenseNo"), gender=normalize_gender(body.get("gender")), age=body.get("age"),
+        phone=body.get("phone"), address=body.get("address"),
+        city=body.get("city"), state=body.get("state"), pin_code=body.get("pinCode"),
+        dob=body.get("dob"), room_no=body.get("roomNo"),
+        license_no=body.get("licenseNo"), email=body.get("email"),
+        gender=normalize_gender(body.get("gender")), age=body.get("age"),
+        availability_days=body.get("availabilityDays"),
+        availability_hours=body.get("availabilityHours"),
+        image_url=body.get("image"),
         status=status,
     )
     session.add(doctor)
@@ -74,6 +80,8 @@ def update_doctor(doctor_id):
     field_map = {
         "name": "name", "specialization": "specialization", "qualification": "qualification",
         "experience": "experience_years", "fee": "fee", "phone": "phone", "address": "address",
+        "city": "city", "state": "state", "pinCode": "pin_code",
+        "dob": "dob", "roomNo": "room_no",
         "email": "email", "licenseNo": "license_no", "gender": "gender", "age": "age",
         "status": "status", "departmentId": "department_id", "image": "image_url",
         "availabilityDays": "availability_days", "availabilityHours": "availability_hours",
@@ -136,8 +144,14 @@ def internal_create_doctor():
         user_id=body.get("userId"), department_id=body["departmentId"], name=body.get("name"),
         specialization=body.get("specialization"), qualification=body.get("qualification"),
         experience_years=body.get("experience_years"), fee=body.get("fee") or 0,
-        phone=body.get("phone"), address=body.get("address"), email=body.get("email"),
+        phone=body.get("phone"), address=body.get("address"),
+        city=body.get("city"), state=body.get("state"), pin_code=body.get("pinCode"),
+        dob=body.get("dob"), room_no=body.get("roomNo"),
+        license_no=body.get("licenseNo"), email=body.get("email"),
         gender=normalize_gender(body.get("gender")), age=body.get("age"),
+        availability_days=body.get("availabilityDays"),
+        availability_hours=body.get("availabilityHours"),
+        image_url=body.get("image"),
     )
     session.add(doctor)
     session.commit()

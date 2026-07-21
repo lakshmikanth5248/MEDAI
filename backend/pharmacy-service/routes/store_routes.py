@@ -31,8 +31,14 @@ def create_store():
         raise APIError("name is required", 400, "validation_error")
 
     store = MedicalStore(
-        store_code=_next_store_code(), name=body["name"], address=body.get("address"),
+        store_code=_next_store_code(), name=body["name"],
+        manager_name=body.get("managerName"),
         phone=body.get("phone"), email=body.get("email"),
+        address=body.get("address"), city=body.get("city"),
+        state=body.get("state"), pin_code=body.get("pinCode"),
+        floor_no=body.get("floorNo"), store_no=body.get("storeNo"),
+        license_no=body.get("licenseNo"), gst_no=body.get("gstNo"),
+        status=body.get("status", "active"),
     )
     session.add(store)
     session.commit()
@@ -57,9 +63,16 @@ def update_store(store_id):
         raise APIError("Medical store not found", 404, "not_found")
 
     body = request.get_json(silent=True) or {}
-    for field in ("name", "address", "phone", "email", "status"):
+    field_map = {
+        "name": "name", "managerName": "manager_name", "address": "address",
+        "city": "city", "state": "state", "pinCode": "pin_code",
+        "floorNo": "floor_no", "storeNo": "store_no",
+        "licenseNo": "license_no", "gstNo": "gst_no",
+        "phone": "phone", "email": "email", "status": "status",
+    }
+    for field, attr in field_map.items():
         if field in body:
-            setattr(store, field, body[field])
+            setattr(store, attr, body[field])
     session.commit()
     return jsonify({"store": store.to_dict()})
 
@@ -86,7 +99,12 @@ def internal_create_store():
 
     store = MedicalStore(
         store_code=_next_store_code(), user_id=body.get("userId"), name=body["name"],
-        address=body.get("address"), phone=body.get("phone"), email=body.get("email"),
+        manager_name=body.get("managerName"),
+        phone=body.get("phone"), email=body.get("email"),
+        address=body.get("address"), city=body.get("city"),
+        state=body.get("state"), pin_code=body.get("pinCode"),
+        floor_no=body.get("floorNo"), store_no=body.get("storeNo"),
+        license_no=body.get("licenseNo"), gst_no=body.get("gstNo"),
     )
     session.add(store)
     session.commit()

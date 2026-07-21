@@ -7,6 +7,7 @@ import { Modal, ConfirmModal } from '../../components/Modal';
 import { PageLoader } from '../../components/Loader/Loader';
 import * as clinicalApi from '../../services/api/clinical';
 import * as prescriptionsApi from '../../services/api/prescriptions';
+import * as notifApi from '../../services/api/notifications';
 import { getErrorMessage } from '../../services/apiError';
 import { resolveProfile } from '../../utils/profile';
 import { getStatusBadgeClass, formatDate } from '../../utils/helpers';
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [apptList, setApptList] = useState([]);
   const [patientPrescriptions, setPatientPrescriptions] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [selectedAppt, setSelectedAppt] = useState(null);
   const [rescheduleAppt, setRescheduleAppt] = useState(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -37,20 +39,22 @@ const Dashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const [appts, doctors, prescriptions] = await Promise.all([
+      const [appts, doctors, prescriptions, notifs] = await Promise.all([
         clinicalApi.getAppointments({ patientId }),
         clinicalApi.getDoctors(),
         prescriptionsApi.getPrescriptions({ patientId }),
+        notifApi.getNotifications().catch(() => []),
       ]);
       const doctorName = (doctorId) => doctors.find((d) => d.id === doctorId)?.name || 'Unknown';
       setApptList(appts.map((a) => ({ ...a, doctorName: doctorName(a.doctorId) })));
       setPatientPrescriptions(prescriptions.map((p) => ({ ...p, doctorName: doctorName(p.doctorId) })));
+      setNotifications((notifs || []).filter((n) => !n.targetUserId || n.targetUserId === user?.id));
     } catch (err) {
       setError(getErrorMessage(err, 'Failed to load dashboard data'));
     } finally {
       setLoading(false);
     }
-  }, [patientId]);
+  }, [patientId, user?.id]);
 
   useEffect(() => {
     loadData();
@@ -166,6 +170,17 @@ const Dashboard = () => {
                   <span className="prx-date">{formatDate(prx.date)}</span>
                 </div>
                 <p className="prx-diagnosis">{prx.notes || prx.medicines?.map((m) => m.name).join(', ')}</p>
+                {prx.pdfPath && (
+                  <a
+                    href={`${process.env.REACT_APP_API_URL || ''}/api/prescriptions/prescriptions/${prx.id}/download`}
+                    className="btn btn-sm btn-outline-primary mt-1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Download PDF
+                  </a>
+                )}
               </div>
             ))}
             {patientPrescriptions.length === 0 && <p className="text-muted">{t('pg.patient.dashboard.noPrescriptions')}</p>}
@@ -182,6 +197,15 @@ const Dashboard = () => {
                 <div className="profile-summary-item"><label>{t('pg.patient.dashboard.lblEmail')}</label><span>{profile.email}</span></div>
               </div>
             <Button variant="outline" size="sm" onClick={() => navigate('/patient/profile')}>{t('pg.patient.dashboard.editProfile')}</Button>
+          </Card>
+          <Card title={t('pg.patient.dashboard.notifications')}>
+            {notifications.slice(0, 5).map((n) => (
+              <div key={n.id} className="notification-item">
+                <p className="notification-message">{n.message}</p>
+                <span className="notification-date text-muted">{formatDate(n.createdAt)}</span>
+              </div>
+            ))}
+            {notifications.length === 0 && <p className="text-muted">No notifications</p>}
           </Card>
         </div>
       </div>

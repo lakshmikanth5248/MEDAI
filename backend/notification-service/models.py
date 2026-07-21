@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, Text, BigInteger
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Text, BigInteger
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import declarative_base
 
@@ -12,6 +12,7 @@ RecipientRole = ENUM(
     name="recipient_role", schema="notification", create_type=False,
 )
 SmsStatus = ENUM("sent", "failed", "pending", name="sms_status", schema="notification", create_type=False)
+EmailStatus = ENUM("sent", "failed", "pending", name="email_status", schema="notification", create_type=False)
 
 
 def utcnow():
@@ -69,4 +70,28 @@ class SmsLog(Base):
             "id": self.id, "recipient": self.recipient, "phone": self.phone,
             "patientId": self.patient_id, "type": self.type, "status": self.status,
             "date": self.sms_date.isoformat() if self.sms_date else None, "message": self.message,
+        }
+
+
+class EmailLog(Base):
+    __tablename__ = "email_logs"
+    __table_args__ = {"schema": "notification"}
+
+    id = Column(BigInteger, primary_key=True)
+    recipient = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    patient_id = Column(BigInteger)
+    subject = Column(String, nullable=False)
+    type = Column(String)
+    status = Column(EmailStatus, nullable=False, default="pending")
+    sent_at = Column(DateTime(timezone=True), default=utcnow)
+    error_message = Column(Text)
+
+    def to_dict(self):
+        return {
+            "id": self.id, "recipient": self.recipient, "email": self.email,
+            "patientId": self.patient_id, "subject": self.subject,
+            "type": self.type, "status": self.status,
+            "sentAt": self.sent_at.isoformat() if self.sent_at else None,
+            "errorMessage": self.error_message,
         }

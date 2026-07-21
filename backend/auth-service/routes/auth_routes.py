@@ -10,7 +10,7 @@ from db import session
 from models import PasswordResetToken, StaffProfile, User
 from services import clients
 from services.id_service import next_uid_for_role
-from services.password_service import hash_password, verify_password
+from services.password_service import hash_password, verify_password, validate_password
 
 bp = Blueprint("auth", __name__)
 
@@ -43,27 +43,29 @@ def login():
     body = request.get_json(silent=True) or {}
     identifier = (body.get("identifier") or body.get("email") or "").strip()
     password = body.get("password") or ""
-    role = body.get("role")
 
     if not identifier or not password:
-        raise APIError("identifier and password are required", 400, "validation_error")
+        raise APIError("Email and password are required", 400, "validation_error")
 
-    query = session.query(User)
-    if role:
-        query = query.filter(User.role == role)
-    query = query.filter(
+    user = session.query(User).filter(
         or_(
             func.lower(User.email) == identifier.lower(),
             func.lower(User.uid) == identifier.lower(),
         )
-    )
-    user = query.first()
+    ).first()
 
     if not user or not verify_password(password, user.password_hash):
         raise APIError("Invalid credentials", 401, "invalid_credentials")
 
-    if user.status != "active":
-        raise APIError("This account has been deactivated", 403, "account_inactive")
+    if user.status == "blocked":
+        raise APIError(
+            "Your account has been blocked. Please contact the administrator.",
+            403, "account_blocked",
+        )
+    if user.status == "inactive":
+        raise APIError("Your account is inactive.", 403, "account_inactive")
+    if user.status == "deleted":
+        raise APIError("Invalid credentials", 401, "invalid_credentials")
 
     user.last_login = datetime.now(timezone.utc)
     session.commit()
@@ -77,8 +79,8 @@ def login():
 
 @bp.post("/register")
 def register():
-    """Patient self-service registration. Creates BOTH the auth user AND the
-    clinical-service patient profile row (the mock only faked the latter).
+    """Patient-only self-service registration. Only Patient role is allowed.
+    Creates BOTH the auth user AND the clinical-service patient profile row.
     """
     body = request.get_json(silent=True) or {}
     name = (body.get("fullName") or body.get("name") or "").strip()
@@ -89,15 +91,26 @@ def register():
     dob = body.get("dob")
     blood_group = body.get("bloodGroup")
     address = body.get("address")
+    role = body.get("role")
 
-    if not name or not email or len(password) < 6:
-        raise APIError("name, email and a password of at least 6 characters are required", 400, "validation_error")
+    allowed_role = "patient"
+    if role and role != allowed_role:
+        raise APIError(
+            "Only Patient registration is allowed via public registration.",
+            403, "invalid_role",
+        )
+
+    if not name or not email:
+        raise APIError("Name and email are required", 400, "validation_error")
+    pwd_errors = validate_password(password)
+    if pwd_errors:
+        raise APIError("; ".join(pwd_errors), 400, "validation_error")
 
     if session.query(User).filter(func.lower(User.email) == email).first():
         raise APIError("An account with this email already exists", 409, "account_exists")
 
-    uid = next_uid_for_role(session, "patient")
-    user = User(email=email, password_hash=hash_password(password), role="patient", uid=uid, name=name)
+    uid = next_uid_for_role(session, allowed_role)
+    user = User(email=email, password_hash=hash_password(password), role=allowed_role, uid=uid, name=name, status="active")
     session.add(user)
     session.commit()
 
@@ -114,6 +127,11 @@ def register():
             502, "profile_creation_failed",
         ) from exc
 
+    if phone:
+        clients.send_welcome_sms(phone, name, user.id)
+    if email:
+        clients.send_welcome_email(email, name, user.id)
+
     return jsonify({"message": "Registration successful", "user": _user_public(user)}), 201
 
 
@@ -121,26 +139,32 @@ def register():
 @require_auth
 @require_role("admin")
 def create_staff():
-    """Admin-only: create a doctor/reception/medical_store/admin login with a
-    default password and must_change_password=True.
+    """Admin-only: create a doctor/reception/medical_store login with full
+    profile fields and a default password (must_change_password=True).
+    Admin cannot create another Admin account.
     """
     body = request.get_json(silent=True) or {}
     role = body.get("role")
     name = (body.get("name") or "").strip()
     email = (body.get("email") or "").strip().lower()
 
-    if role not in ("doctor", "reception", "medical_store", "admin"):
-        raise APIError("role must be one of doctor, reception, medical_store, admin", 400, "validation_error")
+    if role not in ("doctor", "reception", "medical_store"):
+        raise APIError("role must be one of doctor, reception, medical_store", 400, "validation_error")
     if not name or not email:
         raise APIError("name and email are required", 400, "validation_error")
     if session.query(User).filter(func.lower(User.email) == email).first():
         raise APIError("An account with this email already exists", 409, "account_exists")
 
-    default_password = config.staff_default_password(role)
+    password = body.get("password") or config.staff_default_password(role)
+    if body.get("password"):
+        pwd_errors = validate_password(password)
+        if pwd_errors:
+            raise APIError("; ".join(pwd_errors), 400, "validation_error")
     uid = next_uid_for_role(session, role)
     user = User(
-        email=email, password_hash=hash_password(default_password), role=role,
-        uid=uid, name=name, must_change_password=True,
+        email=email, password_hash=hash_password(password), role=role,
+        uid=uid, name=name,
+        must_change_password=not bool(body.get("password")),
     )
     session.add(user)
     session.commit()
@@ -149,20 +173,59 @@ def create_staff():
         if role == "doctor":
             clients.create_doctor_profile(
                 user.id, name, email, body.get("departmentId"),
-                specialization=body.get("specialization"), experience_years=body.get("experience"),
-                fee=body.get("fee"), qualification=body.get("qualification"),
+                specialization=body.get("specialization"),
+                qualification=body.get("qualification"),
+                experience_years=body.get("experience"),
+                fee=body.get("consultationFee"),
                 phone=body.get("phone"), address=body.get("address"),
-                gender=body.get("gender"), age=body.get("age"),
+                city=body.get("city"), state=body.get("state"),
+                pinCode=body.get("pinCode"),
+                dob=body.get("dob"), roomNo=body.get("roomNo"),
+                licenseNo=body.get("licenseNo"),
+                gender=body.get("gender"),
+                availabilityDays=body.get("availabilityDays"),
+                availabilityHours=body.get("availabilityHours"),
+                image=body.get("image"),
             )
+            staff_profile = StaffProfile(
+                user_id=user.id, role=role, phone=body.get("phone"),
+                shift=None, floor=None,
+            )
+            session.add(staff_profile)
+            session.commit()
         elif role == "medical_store":
             clients.create_store_profile(
                 user.id, body.get("storeName") or name, email,
+                managerName=body.get("managerName"),
                 phone=body.get("phone"), address=body.get("address"),
+                city=body.get("city"), state=body.get("state"),
+                pinCode=body.get("pinCode"),
+                floorNo=body.get("floorNo"), storeNo=body.get("storeNo"),
+                licenseNo=body.get("licenseNo"), gstNo=body.get("gstNo"),
             )
-        else:  # reception / admin
+            staff_profile = StaffProfile(
+                user_id=user.id, role=role, phone=body.get("phone"),
+                shift=None, floor=None,
+            )
+            session.add(staff_profile)
+            session.commit()
+        else:  # reception
+            clients.create_reception_profile(
+                user.id, name, email,
+                departmentId=body.get("departmentId"),
+                phone=body.get("phone"),
+                gender=body.get("gender"), dob=body.get("dob"),
+                image=body.get("image"),
+                employeeNo=body.get("employeeNo"),
+                shift=body.get("shift"),
+                joiningDate=body.get("joiningDate"),
+                deskNo=body.get("deskNo"),
+                address=body.get("address"), city=body.get("city"),
+                state=body.get("state"), pinCode=body.get("pinCode"),
+            )
             session.add(StaffProfile(
                 user_id=user.id, role=role, phone=body.get("phone"),
-                floor=body.get("floor"), shift=body.get("shift"),
+                shift=body.get("shift"), floor=None,
             ))
             session.commit()
     except Exception as exc:
@@ -172,8 +235,8 @@ def create_staff():
 
     return jsonify({
         "user": _user_public(user),
-        "defaultPassword": default_password,
-        "note": "Share this password with the new user - they must change it on first login.",
+        "defaultPassword": password,
+        "note": "Share these credentials with the new user.",
     }), 201
 
 
@@ -184,8 +247,9 @@ def change_password():
     current_password = body.get("currentPassword") or ""
     new_password = body.get("newPassword") or ""
 
-    if len(new_password) < 6:
-        raise APIError("New password must be at least 6 characters", 400, "validation_error")
+    pwd_errors = validate_password(new_password)
+    if pwd_errors:
+        raise APIError("; ".join(pwd_errors), 400, "validation_error")
 
     user = session.query(User).get(current_user()["id"])
     if not user or not verify_password(current_password, user.password_hash):
@@ -231,8 +295,9 @@ def reset_password():
     token = body.get("token") or ""
     new_password = body.get("newPassword") or ""
 
-    if len(new_password) < 6:
-        raise APIError("New password must be at least 6 characters", 400, "validation_error")
+    pwd_errors = validate_password(new_password)
+    if pwd_errors:
+        raise APIError("; ".join(pwd_errors), 400, "validation_error")
 
     record = session.query(PasswordResetToken).filter(PasswordResetToken.token == token).first()
     now = datetime.now(timezone.utc)

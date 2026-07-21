@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { RoleRoute } from '../components/RoleRoute/RoleRoute';
 import { PageLoader } from '../components/Loader';
 import DashboardLayout from '../components/DashboardLayout/DashboardLayout';
 import Home from '../pages/Home/Home';
@@ -12,6 +13,8 @@ import NotFound from '../pages/NotFound';
 import AdminDashboard from '../pages/Admin/Dashboard';
 import AdminUsers from '../pages/Admin/Users';
 import AdminDoctors from '../pages/Admin/Doctors';
+import AdminMedicalStores from '../pages/Admin/MedicalStores';
+import AdminReceptionStaff from '../pages/Admin/ReceptionStaff';
 import AdminDepartments from '../pages/Admin/Departments';
 import AdminReports from '../pages/Admin/Reports';
 import AdminSmsLogs from '../pages/Admin/SmsLogs';
@@ -62,11 +65,6 @@ const ROLE_PATH_MAP = {
 function ProtectedRoute() {
   const { user, isAuthenticated, loading } = useAuth();
 
-  // AuthContext is still rehydrating the session from localStorage on this
-  // first render (e.g. after a hard refresh) - `isAuthenticated` is falsely
-  // `false` until that finishes. Redirecting here would race the rehydration
-  // and bounce an already-logged-in user through /login and back, leaving
-  // the app on the wrong page (or blank, if it happens more than once).
   if (loading) {
     return <PageLoader />;
   }
@@ -114,53 +112,55 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/doctors" element={<AdminDoctors />} />
-          <Route path="/admin/departments" element={<AdminDepartments />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          <Route path="/admin/sms-logs" element={<AdminSmsLogs />} />
-          <Route path="/admin/clinics" element={<AdminClinics />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/profile" element={<SharedProfile />} />
-          <Route path="/admin/notifications" element={<Notifications />} />
+          <Route path="/admin/dashboard" element={<RoleRoute allowedRoles={['admin']}><AdminDashboard /></RoleRoute>} />
+          <Route path="/admin/users" element={<RoleRoute allowedRoles={['admin']}><AdminUsers /></RoleRoute>} />
+          <Route path="/admin/doctors" element={<RoleRoute allowedRoles={['admin']}><AdminDoctors /></RoleRoute>} />
+          <Route path="/admin/medical-stores" element={<RoleRoute allowedRoles={['admin']}><AdminMedicalStores /></RoleRoute>} />
+          <Route path="/admin/reception-staff" element={<RoleRoute allowedRoles={['admin']}><AdminReceptionStaff /></RoleRoute>} />
+          <Route path="/admin/departments" element={<RoleRoute allowedRoles={['admin']}><AdminDepartments /></RoleRoute>} />
+          <Route path="/admin/reports" element={<RoleRoute allowedRoles={['admin']}><AdminReports /></RoleRoute>} />
+          <Route path="/admin/sms-logs" element={<RoleRoute allowedRoles={['admin']}><AdminSmsLogs /></RoleRoute>} />
+          <Route path="/admin/clinics" element={<RoleRoute allowedRoles={['admin']}><AdminClinics /></RoleRoute>} />
+          <Route path="/admin/settings" element={<RoleRoute allowedRoles={['admin']}><AdminSettings /></RoleRoute>} />
+          <Route path="/admin/profile" element={<RoleRoute allowedRoles={['admin']}><SharedProfile /></RoleRoute>} />
+          <Route path="/admin/notifications" element={<RoleRoute allowedRoles={['admin']}><Notifications /></RoleRoute>} />
 
-          <Route path="/reception/dashboard" element={<ReceptionDashboard />} />
-          <Route path="/reception/register-patient" element={<RegisterPatient />} />
-          <Route path="/reception/patients" element={<PatientsList />} />
-          <Route path="/reception/appointments" element={<ReceptionAppointments />} />
-          <Route path="/reception/billing" element={<Billing />} />
-          <Route path="/reception/prescriptions" element={<ReceptionPrescriptions />} />
-          <Route path="/reception/profile" element={<SharedProfile />} />
-          <Route path="/reception/notifications" element={<Notifications />} />
+          <Route path="/reception/dashboard" element={<RoleRoute allowedRoles={['reception']}><ReceptionDashboard /></RoleRoute>} />
+          <Route path="/reception/register-patient" element={<RoleRoute allowedRoles={['reception']}><RegisterPatient /></RoleRoute>} />
+          <Route path="/reception/patients" element={<RoleRoute allowedRoles={['reception']}><PatientsList /></RoleRoute>} />
+          <Route path="/reception/appointments" element={<RoleRoute allowedRoles={['reception']}><ReceptionAppointments /></RoleRoute>} />
+          <Route path="/reception/billing" element={<RoleRoute allowedRoles={['reception']}><Billing /></RoleRoute>} />
+          <Route path="/reception/prescriptions" element={<RoleRoute allowedRoles={['reception']}><ReceptionPrescriptions /></RoleRoute>} />
+          <Route path="/reception/profile" element={<RoleRoute allowedRoles={['reception']}><SharedProfile /></RoleRoute>} />
+          <Route path="/reception/notifications" element={<RoleRoute allowedRoles={['reception']}><Notifications /></RoleRoute>} />
 
-          <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
-          <Route path="/doctor/appointments" element={<TodayAppointments />} />
-          <Route path="/doctor/patient" element={<DoctorPatients />} />
-          <Route path="/doctor/patient/:id" element={<PatientDetails />} />
-          <Route path="/doctor/consultations" element={<DoctorConsultations />} />
-          <Route path="/doctor/consultation/:id" element={<Consultation />} />
-          <Route path="/doctor/prescription" element={<DoctorPrescription />} />
-          <Route path="/doctor/prescription/:id" element={<DoctorPrescription />} />
-          <Route path="/doctor/profile" element={<DoctorProfile />} />
-          <Route path="/doctor/notifications" element={<Notifications />} />
+          <Route path="/doctor/dashboard" element={<RoleRoute allowedRoles={['doctor']}><DoctorDashboard /></RoleRoute>} />
+          <Route path="/doctor/appointments" element={<RoleRoute allowedRoles={['doctor']}><TodayAppointments /></RoleRoute>} />
+          <Route path="/doctor/patient" element={<RoleRoute allowedRoles={['doctor']}><DoctorPatients /></RoleRoute>} />
+          <Route path="/doctor/patient/:id" element={<RoleRoute allowedRoles={['doctor']}><PatientDetails /></RoleRoute>} />
+          <Route path="/doctor/consultations" element={<RoleRoute allowedRoles={['doctor']}><DoctorConsultations /></RoleRoute>} />
+          <Route path="/doctor/consultation/:id" element={<RoleRoute allowedRoles={['doctor']}><Consultation /></RoleRoute>} />
+          <Route path="/doctor/prescription" element={<RoleRoute allowedRoles={['doctor']}><DoctorPrescription /></RoleRoute>} />
+          <Route path="/doctor/prescription/:id" element={<RoleRoute allowedRoles={['doctor']}><DoctorPrescription /></RoleRoute>} />
+          <Route path="/doctor/profile" element={<RoleRoute allowedRoles={['doctor']}><DoctorProfile /></RoleRoute>} />
+          <Route path="/doctor/notifications" element={<RoleRoute allowedRoles={['doctor']}><Notifications /></RoleRoute>} />
 
-          <Route path="/patient/dashboard" element={<PatientDashboard />} />
-          <Route path="/patient/departments" element={<PatientDepartments />} />
-          <Route path="/patient/doctors" element={<PatientDoctors />} />
-          <Route path="/patient/book-appointment" element={<BookAppointment />} />
-          <Route path="/patient/my-appointments" element={<MyAppointments />} />
-          <Route path="/patient/prescriptions" element={<PatientPrescriptions />} />
-          <Route path="/patient/medical-history" element={<MedicalHistory />} />
-          <Route path="/patient/profile" element={<PatientProfile />} />
-          <Route path="/patient/notifications" element={<Notifications />} />
+          <Route path="/patient/dashboard" element={<RoleRoute allowedRoles={['patient']}><PatientDashboard /></RoleRoute>} />
+          <Route path="/patient/departments" element={<RoleRoute allowedRoles={['patient']}><PatientDepartments /></RoleRoute>} />
+          <Route path="/patient/doctors" element={<RoleRoute allowedRoles={['patient']}><PatientDoctors /></RoleRoute>} />
+          <Route path="/patient/book-appointment" element={<RoleRoute allowedRoles={['patient']}><BookAppointment /></RoleRoute>} />
+          <Route path="/patient/my-appointments" element={<RoleRoute allowedRoles={['patient']}><MyAppointments /></RoleRoute>} />
+          <Route path="/patient/prescriptions" element={<RoleRoute allowedRoles={['patient']}><PatientPrescriptions /></RoleRoute>} />
+          <Route path="/patient/medical-history" element={<RoleRoute allowedRoles={['patient']}><MedicalHistory /></RoleRoute>} />
+          <Route path="/patient/profile" element={<RoleRoute allowedRoles={['patient']}><PatientProfile /></RoleRoute>} />
+          <Route path="/patient/notifications" element={<RoleRoute allowedRoles={['patient']}><Notifications /></RoleRoute>} />
 
-          <Route path="/medical-store/dashboard" element={<MedicalStoreDashboard />} />
-          <Route path="/medical-store/pending" element={<PendingPrescriptions />} />
-          <Route path="/medical-store/dispensed" element={<DispensedMedicines />} />
-          <Route path="/medical-store/inventory" element={<MedicineInventory />} />
-          <Route path="/medical-store/profile" element={<SharedProfile />} />
-          <Route path="/medical-store/notifications" element={<Notifications />} />
+          <Route path="/medical-store/dashboard" element={<RoleRoute allowedRoles={['medical_store']}><MedicalStoreDashboard /></RoleRoute>} />
+          <Route path="/medical-store/pending" element={<RoleRoute allowedRoles={['medical_store']}><PendingPrescriptions /></RoleRoute>} />
+          <Route path="/medical-store/dispensed" element={<RoleRoute allowedRoles={['medical_store']}><DispensedMedicines /></RoleRoute>} />
+          <Route path="/medical-store/inventory" element={<RoleRoute allowedRoles={['medical_store']}><MedicineInventory /></RoleRoute>} />
+          <Route path="/medical-store/profile" element={<RoleRoute allowedRoles={['medical_store']}><SharedProfile /></RoleRoute>} />
+          <Route path="/medical-store/notifications" element={<RoleRoute allowedRoles={['medical_store']}><Notifications /></RoleRoute>} />
         </Route>
       </Route>
 

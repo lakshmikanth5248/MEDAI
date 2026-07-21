@@ -62,6 +62,26 @@
 
 .data-table-scroll {
   overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.data-table tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+.data-table tbody tr:hover {
+  background: #f0f9ff !important;
 }
 
 .data-table {

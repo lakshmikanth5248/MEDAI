@@ -10,7 +10,7 @@ UserRole = ENUM(
     "admin", "doctor", "reception", "patient", "medical_store",
     name="user_role", schema="clinic_auth", create_type=False,
 )
-UserStatus = ENUM("active", "inactive", name="user_status", schema="clinic_auth", create_type=False)
+UserStatus = ENUM("active", "inactive", "blocked", "deleted", name="user_status", schema="clinic_auth", create_type=False)
 
 
 def utcnow():

@@ -6,13 +6,14 @@ import { getErrorMessage } from '../services/apiError';
 
 export const AuthContext = createContext(null);
 
-// Merges the auth identity (id, uid, name, email, role, roleLabel, status,
-// mustChangePassword - and phone/floor/shift for reception/admin, added
-// server-side by GET /me) with the role-specific domain profile from
-// clinical-service/pharmacy-service, so pages get one rich profile object -
-// mirroring what the old mock's client-side resolveProfile() used to build,
-// except sourced from the real backend now. Best-effort: if the domain
-// lookup fails, the bare auth identity is still usable.
+const ROLE_DASHBOARD_MAP = {
+  admin: '/admin/dashboard',
+  reception: '/reception/dashboard',
+  doctor: '/doctor/dashboard',
+  medical_store: '/medical-store/dashboard',
+  patient: '/patient/dashboard',
+};
+
 async function enrichProfile(authUser) {
   try {
     if (authUser.role === 'doctor') {
@@ -30,12 +31,20 @@ async function enrichProfile(authUser) {
         };
       }
     } else if (authUser.role === 'reception') {
+      try {
+        const receptionists = await clinicalApi.getReceptionists({ userId: authUser.id });
+        if (receptionists[0]) {
+          return {
+            ...authUser, ...receptionists[0],
+            name: authUser.name, email: authUser.email, receptionId: receptionists[0].receptionId,
+          };
+        }
+      } catch { }
       return { ...authUser, receptionId: authUser.uid };
     } else if (authUser.role === 'admin') {
       return { ...authUser, adminId: authUser.uid };
     }
   } catch {
-    /* best-effort enrichment - fall back to the bare auth identity below */
   }
   return authUser;
 }
@@ -61,12 +70,11 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = useCallback(async (identifier, password, role) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
     try {
-      const { token: tokenStr, user: authUser } = await authApi.login(identifier, password, role);
-      // Stash the token immediately - enrichProfile's API calls need it on the Authorization header.
+      const { token: tokenStr, user: authUser } = await authApi.login(email, password);
       localStorage.setItem('token', tokenStr);
       setToken(tokenStr);
 
@@ -74,6 +82,11 @@ export function AuthProvider({ children }) {
       setUser(fullProfile);
       localStorage.setItem('user', JSON.stringify(fullProfile));
       setLoading(false);
+
+      const dashboardPath = ROLE_DASHBOARD_MAP[fullProfile.role];
+      if (dashboardPath) {
+        window.location.href = dashboardPath;
+      }
       return true;
     } catch (err) {
       localStorage.removeItem('token');
@@ -118,10 +131,6 @@ export function AuthProvider({ children }) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  // Persists editable profile fields to whichever backend owns them
-  // (clinical-service for doctor/patient, pharmacy-service for medical_store,
-  // auth-service for reception/admin self-edit), then updates the in-memory
-  // + cached user so every page reflecting the profile stays in sync.
   const updateProfile = useCallback(async (fields) => {
     if (!user) return false;
     try {

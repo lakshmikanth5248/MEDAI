@@ -8,6 +8,7 @@ from routes.consultation_routes import bp as consultation_bp
 from routes.department_routes import bp as department_bp
 from routes.doctor_routes import bp as doctor_bp
 from routes.patient_routes import bp as patient_bp
+from routes.reception_routes import bp as reception_bp
 
 app = Flask(__name__)
 register_error_handlers(app)
@@ -18,6 +19,7 @@ app.register_blueprint(doctor_bp)
 app.register_blueprint(patient_bp)
 app.register_blueprint(appointment_bp)
 app.register_blueprint(consultation_bp)
+app.register_blueprint(reception_bp)
 
 
 @app.get("/health")

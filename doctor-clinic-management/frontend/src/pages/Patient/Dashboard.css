@@ -24,3 +24,8 @@
 .profile-summary-item label { color: var(--color-gray-400); }
 .profile-summary-item span { font-weight: var(--font-weight-medium); }
 .blood-badge { background: var(--color-light-blue); color: var(--color-dark-blue); padding: 2px 10px; border-radius: var(--radius-full); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); }
+.notification-item { padding: var(--spacing-xs) 0; border-bottom: 1px solid var(--color-gray-100); }
+.notification-item:last-child { border-bottom: none; }
+.notification-message { font-size: var(--font-size-sm); margin: 0; }
+.notification-date { font-size: var(--font-size-xs); }
+.mt-1 { margin-top: 4px; }

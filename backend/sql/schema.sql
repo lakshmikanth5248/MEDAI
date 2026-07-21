@@ -22,7 +22,7 @@ CREATE SCHEMA IF NOT EXISTS core;
 -- ENUM TYPES
 -- =====================================================================
 CREATE TYPE clinic_auth.user_role AS ENUM ('admin','doctor','reception','patient','medical_store');
-CREATE TYPE clinic_auth.user_status AS ENUM ('active','inactive');
+CREATE TYPE clinic_auth.user_status AS ENUM ('active','inactive','blocked','deleted');
 
 CREATE TYPE clinical.gender AS ENUM ('male','female','other');
 CREATE TYPE clinical.entity_status AS ENUM ('active','inactive');
@@ -39,6 +39,7 @@ CREATE TYPE billing.discount_type AS ENUM ('fixed','percent');
 CREATE TYPE billing.payment_method AS ENUM ('cash','card','upi','insurance');
 
 CREATE TYPE notification.notif_type AS ENUM ('info','success','warning','error');
+CREATE TYPE notification.email_status AS ENUM ('sent','failed','pending');
 CREATE TYPE notification.recipient_role AS ENUM ('all','doctor','reception','medical_store','patient');
 CREATE TYPE notification.sms_status AS ENUM ('sent','failed','pending');
 
@@ -110,7 +111,7 @@ CREATE TABLE clinical.departments (
 
 CREATE TABLE clinical.doctors (
   id                BIGSERIAL PRIMARY KEY,
-  doctor_code       TEXT UNIQUE NOT NULL DEFAULT ('DOC-' || nextval('clinical.doctor_id_seq')),
+  doctor_code       TEXT UNIQUE NOT NULL DEFAULT ('DOC' || nextval('clinical.doctor_id_seq')),
   user_id           BIGINT UNIQUE,
   department_id     BIGINT NOT NULL REFERENCES clinical.departments(id),
   name              TEXT NOT NULL,
@@ -124,10 +125,16 @@ CREATE TABLE clinical.doctors (
   image_url         TEXT,
   phone             TEXT,
   address           TEXT,
+  city              TEXT,
+  state             TEXT,
+  pin_code          TEXT,
+  dob               DATE,
+  room_no           TEXT,
   license_no        TEXT UNIQUE,
   email             CITEXT,
   gender            clinical.gender,
   age               INTEGER,
+  created_by        BIGINT,
   status            clinical.entity_status NOT NULL DEFAULT 'active',
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -136,6 +143,36 @@ CREATE TABLE clinical.doctors (
 CREATE INDEX idx_doctors_department ON clinical.doctors(department_id);
 CREATE INDEX idx_doctors_status ON clinical.doctors(status);
 CREATE INDEX idx_doctors_user ON clinical.doctors(user_id);
+
+CREATE SEQUENCE clinical.receptionist_id_seq START WITH 100001;
+
+CREATE TABLE clinical.receptionists (
+  id                BIGSERIAL PRIMARY KEY,
+  reception_code    TEXT UNIQUE NOT NULL DEFAULT ('REC' || nextval('clinical.receptionist_id_seq')),
+  user_id           BIGINT UNIQUE,
+  department_id     BIGINT REFERENCES clinical.departments(id),
+  name              TEXT NOT NULL,
+  email             CITEXT,
+  phone             TEXT,
+  gender            clinical.gender,
+  dob               DATE,
+  image_url         TEXT,
+  employee_no       TEXT,
+  shift             TEXT,
+  joining_date      DATE,
+  desk_no           TEXT,
+  address           TEXT,
+  city              TEXT,
+  state             TEXT,
+  pin_code          TEXT,
+  status            clinical.entity_status NOT NULL DEFAULT 'active',
+  created_by        BIGINT,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT fk_reception_user FOREIGN KEY (user_id) REFERENCES clinic_auth.users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_reception_user ON clinical.receptionists(user_id);
+CREATE INDEX idx_reception_status ON clinical.receptionists(status);
 
 CREATE TABLE clinical.patients (
   id              BIGSERIAL PRIMARY KEY,
@@ -205,14 +242,24 @@ CREATE SEQUENCE pharmacy.store_id_seq START WITH 100001;
 
 CREATE TABLE pharmacy.medical_stores (
   id            BIGSERIAL PRIMARY KEY,
-  store_code    TEXT UNIQUE NOT NULL DEFAULT ('STORE-' || nextval('pharmacy.store_id_seq')),
+  store_code    TEXT UNIQUE NOT NULL DEFAULT ('MED' || nextval('pharmacy.store_id_seq')),
   user_id       BIGINT UNIQUE,
   name          TEXT NOT NULL,
-  address       TEXT,
+  manager_name  TEXT,
   phone         TEXT,
   email         CITEXT,
+  address       TEXT,
+  city          TEXT,
+  state         TEXT,
+  pin_code      TEXT,
+  floor_no      TEXT,
+  store_no      TEXT,
+  license_no    TEXT,
+  gst_no        TEXT,
   status        clinical.entity_status NOT NULL DEFAULT 'active',
+  created_by    BIGINT,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT fk_store_user FOREIGN KEY (user_id) REFERENCES clinic_auth.users(id) ON DELETE SET NULL
 );
 CREATE INDEX idx_store_user ON pharmacy.medical_stores(user_id);
@@ -250,6 +297,7 @@ CREATE TABLE prescription.prescriptions (
   notes           TEXT,
   status          prescription.status NOT NULL DEFAULT 'pending',
   total_cost      NUMERIC(10,2),
+  pdf_path        TEXT,
   dispensed_by    BIGINT,
   dispensed_at    TIMESTAMPTZ,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -362,6 +410,22 @@ CREATE TABLE notification.sms_logs (
 CREATE INDEX idx_sms_patient ON notification.sms_logs(patient_id);
 CREATE INDEX idx_sms_status ON notification.sms_logs(status);
 CREATE INDEX idx_sms_date ON notification.sms_logs(sms_date DESC);
+
+CREATE TABLE notification.email_logs (
+  id            BIGSERIAL PRIMARY KEY,
+  recipient     TEXT NOT NULL,
+  email         TEXT NOT NULL,
+  patient_id    BIGINT,
+  subject       TEXT NOT NULL,
+  type          TEXT,
+  status        notification.email_status NOT NULL DEFAULT 'pending',
+  sent_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  error_message TEXT,
+  CONSTRAINT fk_email_patient FOREIGN KEY (patient_id) REFERENCES clinical.patients(id)
+);
+CREATE INDEX idx_email_patient ON notification.email_logs(patient_id);
+CREATE INDEX idx_email_status ON notification.email_logs(status);
+CREATE INDEX idx_email_date ON notification.email_logs(sent_at DESC);
 
 -- =====================================================================
 -- SCHEMA: core   (owned by core-service)

@@ -23,17 +23,31 @@ class MedicalStore(Base):
     store_code = Column(String, unique=True, nullable=False)
     user_id = Column(BigInteger, unique=True)
     name = Column(String, nullable=False)
-    address = Column(Text)
+    manager_name = Column(String)
     phone = Column(String)
     email = Column(CITEXT)
+    address = Column(Text)
+    city = Column(String)
+    state = Column(String)
+    pin_code = Column(String)
+    floor_no = Column(String)
+    store_no = Column(String)
+    license_no = Column(String)
+    gst_no = Column(String)
     status = Column(EntityStatus, nullable=False, default="active")
+    created_by = Column(BigInteger)
     created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
     def to_dict(self):
         return {
             "id": self.id, "storeCode": self.store_code, "userId": self.user_id,
-            "name": self.name, "address": self.address, "phone": self.phone,
-            "email": self.email, "status": self.status,
+            "name": self.name, "managerName": self.manager_name,
+            "phone": self.phone, "email": self.email,
+            "address": self.address, "city": self.city, "state": self.state,
+            "pinCode": self.pin_code, "floorNo": self.floor_no,
+            "storeNo": self.store_no, "licenseNo": self.license_no,
+            "gstNo": self.gst_no, "status": self.status,
         }
 
 

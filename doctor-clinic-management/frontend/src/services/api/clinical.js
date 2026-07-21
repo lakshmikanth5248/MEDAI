@@ -28,6 +28,13 @@ export const getAppointment = (id) => apiClient.get(`/clinical/appointments/${id
 export const createAppointment = (data) => apiClient.post('/clinical/appointments', data).then((r) => r.data.appointment);
 export const updateAppointmentStatus = (id, data) => apiClient.patch(`/clinical/appointments/${id}/status`, data).then((r) => r.data.appointment);
 
+// Receptionists
+export const getReceptionists = (params) => apiClient.get('/clinical/receptionists', { params }).then((r) => r.data.receptionists);
+export const getReceptionist = (id) => apiClient.get(`/clinical/receptionists/${id}`).then((r) => r.data.receptionist);
+export const createReceptionist = (data) => apiClient.post('/clinical/receptionists', data).then((r) => r.data.receptionist);
+export const updateReceptionist = (id, data) => apiClient.put(`/clinical/receptionists/${id}`, data).then((r) => r.data.receptionist);
+export const deleteReceptionist = (id) => apiClient.delete(`/clinical/receptionists/${id}`).then((r) => r.data);
+
 // Consultations
 export const getConsultations = (params) => apiClient.get('/clinical/consultations', { params }).then((r) => r.data.consultations);
 export const getConsultation = (id) => apiClient.get(`/clinical/consultations/${id}`).then((r) => r.data.consultation);

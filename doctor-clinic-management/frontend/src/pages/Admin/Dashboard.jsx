@@ -35,33 +35,38 @@ const GENDER_OPTIONS = [
 const roleFields = (departments) => ({
   doctor: [
     { name: 'name', label: 'name', type: 'text', required: true },
-    { name: 'age', label: 'age', type: 'number' },
-    { name: 'gender', label: 'gender', type: 'select', options: GENDER_OPTIONS },
+    { name: 'email', label: 'email', type: 'email', required: true },
+    { name: 'password', label: 'password', type: 'password', required: true },
     { name: 'departmentId', label: 'department', type: 'select', options: departments.map((d) => ({ value: d.id, label: d.name })) },
+    { name: 'qualification', label: 'qualification', type: 'text' },
     { name: 'specialization', label: 'specialization', type: 'text' },
     { name: 'experience', label: 'experience', type: 'number' },
-    { name: 'fee', label: 'fee', type: 'number' },
+    { name: 'consultationFee', label: 'consultationFee', type: 'number' },
+    { name: 'workingHours', label: 'workingHours', type: 'text' },
     { name: 'phone', label: 'phone', type: 'text' },
-    { name: 'email', label: 'email', type: 'email', required: true },
+    { name: 'gender', label: 'gender', type: 'select', options: GENDER_OPTIONS },
     { name: 'address', label: 'address', type: 'text' },
   ],
   reception: [
     { name: 'name', label: 'name', type: 'text', required: true },
-    { name: 'phone', label: 'phone', type: 'text' },
     { name: 'email', label: 'email', type: 'email', required: true },
-    { name: 'floor', label: 'floor', type: 'text' },
+    { name: 'password', label: 'password', type: 'password', required: true },
+    { name: 'phone', label: 'phone', type: 'text' },
     { name: 'shift', label: 'shift', type: 'text' },
+    { name: 'joiningDate', label: 'joiningDate', type: 'date' },
   ],
   medical_store: [
-    { name: 'storeName', label: 'storeName', type: 'text', required: true },
-    { name: 'name', label: 'name', type: 'text' },
-    { name: 'phone', label: 'phone', type: 'text' },
+    { name: 'name', label: 'name', type: 'text', required: true },
     { name: 'email', label: 'email', type: 'email', required: true },
-    { name: 'address', label: 'address', type: 'text' },
+    { name: 'password', label: 'password', type: 'password', required: true },
+    { name: 'phone', label: 'phone', type: 'text' },
+    { name: 'storeLocation', label: 'storeLocation', type: 'text' },
+    { name: 'shift', label: 'shift', type: 'text' },
   ],
   admin: [
     { name: 'name', label: 'name', type: 'text', required: true },
     { name: 'email', label: 'email', type: 'email', required: true },
+    { name: 'password', label: 'password', type: 'password' },
     { name: 'phone', label: 'phone', type: 'text' },
   ],
 });
@@ -229,6 +234,7 @@ const Dashboard = () => {
     { label: t('healthServerStatus'), value: t('healthOnline'), color: '#22C55E' },
     { label: t('healthDatabase'), value: t('healthConnected'), color: '#22C55E' },
     { label: t('healthSmsService'), value: t('common.active'), color: '#22C55E' },
+    { label: t('healthEmailService'), value: t('common.active'), color: '#22C55E' },
   ];
 
   const fields = roleFields(departments)[staffRole];
