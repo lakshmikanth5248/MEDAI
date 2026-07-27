@@ -1,0 +1,161 @@
+envVarGroups:
+  - name: medai-shared
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: INTERNAL_SERVICE_SECRET
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+services:
+  - type: web
+    name: medai-gateway
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/gateway
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: FRONTEND_ORIGIN
+        value: http://localhost:5173
+      - key: AUTH_SERVICE_URL
+        value: https://medai-auth.onrender.com
+      - key: CLINICAL_SERVICE_URL
+        value: https://medai-clinical.onrender.com
+      - key: PRESCRIPTION_SERVICE_URL
+        value: https://medai-prescription.onrender.com
+      - key: PHARMACY_SERVICE_URL
+        value: https://medai-pharmacy.onrender.com
+      - key: BILLING_SERVICE_URL
+        value: https://medai-billing.onrender.com
+      - key: NOTIFICATION_SERVICE_URL
+        value: https://medai-notification.onrender.com
+      - key: CORE_SERVICE_URL
+        value: https://medai-core.onrender.com
+
+  - type: web
+    name: medai-auth
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/auth-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: CLINICAL_SERVICE_URL
+        value: https://medai-clinical.onrender.com
+      - key: PHARMACY_SERVICE_URL
+        value: https://medai-pharmacy.onrender.com
+      - key: NOTIFICATION_SERVICE_URL
+        value: https://medai-notification.onrender.com
+
+  - type: web
+    name: medai-clinical
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/clinical-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: PRESCRIPTION_SERVICE_URL
+        value: https://medai-prescription.onrender.com
+      - key: NOTIFICATION_SERVICE_URL
+        value: https://medai-notification.onrender.com
+      - key: CORE_SERVICE_URL
+        value: https://medai-core.onrender.com
+
+  - type: web
+    name: medai-prescription
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/prescription-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: PHARMACY_SERVICE_URL
+        value: https://medai-pharmacy.onrender.com
+      - key: NOTIFICATION_SERVICE_URL
+        value: https://medai-notification.onrender.com
+      - key: CLINICAL_SERVICE_URL
+        value: https://medai-clinical.onrender.com
+
+  - type: web
+    name: medai-pharmacy
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/pharmacy-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: PRESCRIPTION_SERVICE_URL
+        value: https://medai-prescription.onrender.com
+
+  - type: web
+    name: medai-billing
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/billing-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+
+  - type: web
+    name: medai-notification
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/notification-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: CLINICAL_SERVICE_URL
+        value: https://medai-clinical.onrender.com
+
+  - type: web
+    name: medai-core
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend/core-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 app:app
+    healthCheckPath: /health
+    envVarGroups:
+      - medai-shared
+    envVars:
+      - key: CLINICAL_SERVICE_URL
+        value: https://medai-clinical.onrender.com
+      - key: PRESCRIPTION_SERVICE_URL
+        value: https://medai-prescription.onrender.com
+      - key: PHARMACY_SERVICE_URL
+        value: https://medai-pharmacy.onrender.com
+      - key: BILLING_SERVICE_URL
+        value: https://medai-billing.onrender.com
