@@ -12,7 +12,10 @@ if missing:
 JWT_SECRET = os.environ["JWT_SECRET"]
 INTERNAL_SERVICE_SECRET = os.environ["INTERNAL_SERVICE_SECRET"]
 PORT = int(os.environ.get("PORT", os.environ.get("GATEWAY_PORT", 5000)))
-FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
+# Comma-separated list, e.g. "https://app.vercel.app,http://localhost:5173"
+FRONTEND_ORIGINS = [
+    o.strip() for o in os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173").split(",") if o.strip()
+]
 
 # Maps the /api/<prefix>/... path segment to the upstream service base URL.
 UPSTREAMS = {

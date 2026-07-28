@@ -24,4 +24,4 @@ services:
       - medai-shared
     envVars:
       - key: FRONTEND_ORIGIN
-        value: http://localhost:5173
+        value: https://medai-chi-pearl.vercel.app,http://localhost:5173

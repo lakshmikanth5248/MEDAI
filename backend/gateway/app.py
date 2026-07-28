@@ -7,7 +7,7 @@ from proxy import bp as proxy_bp
 
 app = Flask(__name__)
 register_error_handlers(app)
-CORS(app, origins=[config.FRONTEND_ORIGIN], supports_credentials=True)
+CORS(app, origins=config.FRONTEND_ORIGINS, supports_credentials=True)
 
 app.register_blueprint(proxy_bp)
 
