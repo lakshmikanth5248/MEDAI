@@ -4,5 +4,7 @@ psycopg2-binary==2.9.12
 alembic==1.13.3
 python-dotenv==1.0.1
 PyJWT==2.9.0
+Flask-Mail==0.10.0
+twilio==9.10.9
 gunicorn==23.0.0
 -e ../shared

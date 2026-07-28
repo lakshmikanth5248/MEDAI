@@ -11,7 +11,7 @@ if missing:
 
 JWT_SECRET = os.environ["JWT_SECRET"]
 INTERNAL_SERVICE_SECRET = os.environ["INTERNAL_SERVICE_SECRET"]
-PORT = int(os.environ.get("GATEWAY_PORT", 5000))
+PORT = int(os.environ.get("PORT", os.environ.get("GATEWAY_PORT", 5000)))
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
 # Maps the /api/<prefix>/... path segment to the upstream service base URL.

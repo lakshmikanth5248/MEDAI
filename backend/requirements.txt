@@ -1,8 +1,7 @@
-# Reference only - the union of every dependency used across all 8 services
-# (auth, clinical, prescription, pharmacy, billing, notification, core, gateway).
-# Render does NOT install from this file - each service's own requirements.txt
-# (backend/<service>/requirements.txt) is what actually gets installed per
-# render.yaml, since each runs as its own deployment with its own rootDir.
+# Union of every dependency used across all 8 services (auth, clinical,
+# prescription, pharmacy, billing, notification, core, gateway).
+# render.yaml installs from THIS file and runs all 8 as subprocesses of
+# start.py inside a single Render web service - see start.py.
 Flask==3.0.3
 flask-cors==4.0.1
 SQLAlchemy==2.0.35
@@ -12,5 +11,7 @@ python-dotenv==1.0.1
 PyJWT==2.9.0
 bcrypt==4.2.0
 requests==2.32.3
-gunicorn==23.0.0
+Flask-Mail==0.10.0
+twilio==9.10.9
+reportlab==5.0.0
 -e ./shared
