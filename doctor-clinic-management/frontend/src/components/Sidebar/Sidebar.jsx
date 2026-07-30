@@ -51,6 +51,7 @@ const MENU_CONFIG = {
     { path: '/medical-store/pending', labelKey: 'sidebar.pendingPrescriptions', icon: '⏳' },
     { path: '/medical-store/dispensed', labelKey: 'sidebar.dispensed', icon: '✅' },
     { path: '/medical-store/inventory', labelKey: 'sidebar.inventory', icon: '📦' },
+    { path: '/medical-store/billing', labelKey: 'sidebar.billing', icon: '💰' },
     { path: '/medical-store/profile', labelKey: 'sidebar.profile', icon: '⚙️' },
     { path: '/medical-store/notifications', labelKey: 'sidebar.notifications', icon: '🔔' },
   ],

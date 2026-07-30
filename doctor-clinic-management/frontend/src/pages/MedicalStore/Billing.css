@@ -1,0 +1,213 @@
+/* Medical Store — Billing Page */
+
+.ms-billing-page .page-header p {
+  color: var(--color-text-muted, #6b7280);
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+/* ── Stat Cards ── */
+.ms-billing-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ms-bill-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-surface, #fff);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ms-bill-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.ms-stat-total  { border-left-color: #6366f1; }
+.ms-stat-paid   { border-left-color: #22c55e; }
+.ms-stat-pending { border-left-color: #f59e0b; }
+.ms-stat-revenue { border-left-color: #0ea5e9; }
+
+.ms-stat-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ms-stat-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+  line-height: 1.1;
+}
+
+.ms-stat-label {
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #6b7280);
+  margin-top: 2px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Filters ── */
+.ms-billing-filters {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ms-billing-filters .form-group {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* ── Table helpers ── */
+.ms-bill-code {
+  color: var(--color-text-muted, #6b7280);
+  font-size: 0.85em;
+}
+
+.ms-bill-method {
+  background: var(--color-surface-2, #f3f4f6);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* ── Bill Detail Modal ── */
+.ms-bill-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ms-bill-detail-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  background: var(--color-surface-2, #f9fafb);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.ms-bill-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ms-bill-detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ms-bill-detail-value {
+  font-size: 0.95rem;
+  color: var(--color-text, #111827);
+  font-weight: 500;
+}
+
+/* ── Line Items Table ── */
+.ms-bill-items-section h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, #6b7280);
+  margin-bottom: 10px;
+}
+
+.ms-bill-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ms-bill-items-table th {
+  background: var(--color-surface-2, #f3f4f6);
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ms-bill-items-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text, #111827);
+}
+
+.ms-bill-items-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ms-bill-items-table tr:hover td {
+  background: var(--color-surface-2, #f9fafb);
+}
+
+/* ── Totals ── */
+.ms-bill-totals {
+  background: var(--color-surface-2, #f9fafb);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 340px;
+  margin-left: auto;
+}
+
+.ms-bill-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92rem;
+  color: var(--color-text, #374151);
+}
+
+.ms-bill-grand-total {
+  border-top: 2px solid var(--color-border, #e5e7eb);
+  padding-top: 10px;
+  margin-top: 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+}
+
+.text-success {
+  color: #16a34a;
+}
+
+/* ── Detail actions ── */
+.ms-bill-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .ms-bill-detail-header {
+    grid-template-columns: 1fr;
+  }
+  .ms-billing-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

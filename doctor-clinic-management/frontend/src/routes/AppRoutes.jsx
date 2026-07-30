@@ -53,6 +53,7 @@ import MedicalStoreDashboard from '../pages/MedicalStore/Dashboard';
 import PendingPrescriptions from '../pages/MedicalStore/PendingPrescriptions';
 import DispensedMedicines from '../pages/MedicalStore/DispensedMedicines';
 import MedicineInventory from '../pages/MedicalStore/MedicineInventory';
+import MedicalStoreBilling from '../pages/MedicalStore/Billing';
 
 const ROLE_PATH_MAP = {
   admin: 'admin',
@@ -159,6 +160,7 @@ export default function AppRoutes() {
           <Route path="/medical-store/pending" element={<RoleRoute allowedRoles={['medical_store']}><PendingPrescriptions /></RoleRoute>} />
           <Route path="/medical-store/dispensed" element={<RoleRoute allowedRoles={['medical_store']}><DispensedMedicines /></RoleRoute>} />
           <Route path="/medical-store/inventory" element={<RoleRoute allowedRoles={['medical_store']}><MedicineInventory /></RoleRoute>} />
+          <Route path="/medical-store/billing" element={<RoleRoute allowedRoles={['medical_store']}><MedicalStoreBilling /></RoleRoute>} />
           <Route path="/medical-store/profile" element={<RoleRoute allowedRoles={['medical_store']}><SharedProfile /></RoleRoute>} />
           <Route path="/medical-store/notifications" element={<RoleRoute allowedRoles={['medical_store']}><Notifications /></RoleRoute>} />
         </Route>
